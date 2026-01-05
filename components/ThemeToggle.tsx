@@ -17,7 +17,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ theme, onToggle }) => {
         color: theme === 'dark' ? '#ec4899' : '#ec4899'
       }}
     >
-      <Icon name={theme === 'dark' ? 'flame' : 'flame'} className="w-4 h-4" />
+      <Icon name={theme === 'dark' ? 'moon' : 'flame'} className="w-4 h-4" />
     </button>
   );
 };
