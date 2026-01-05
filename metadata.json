@@ -1,0 +1,7 @@
+{
+  "name": "75 Hard Challenge Tracker - Argentina Edition",
+  "description": "A premium, high-performance tracker for the 75 Hard challenge, featuring automatic daily resets at 00:00 Argentina time, progress visualization, and persistence.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
