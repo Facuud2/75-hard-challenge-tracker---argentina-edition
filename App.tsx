@@ -125,12 +125,12 @@ const App: React.FC = () => {
   const overallProgress = (state.currentDay / 75) * 100;
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-red-900 selection:text-white">
+    <div className="min-h-screen bg-black text-white selection:bg-pink-900 selection:text-white">
       {/* Top Navbar */}
       <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Icon name="flame" className="text-red-600 w-5 h-5 fill-red-600" />
+            <Icon name="flame" className="text-pink-400 w-5 h-5 fill-pink-400" />
             <h1 className="text-lg font-oswald font-bold tracking-tight italic">75 HARD</h1>
           </div>
           <div className="flex items-center gap-3">
@@ -166,13 +166,13 @@ const App: React.FC = () => {
                         <span className="text-white">{Math.round(overallProgress)}%</span>
                     </div>
                     <div className="h-1.5 w-full bg-[#2C2C2E] rounded-full overflow-hidden">
-                        <div className="h-full bg-red-600 rounded-full" style={{ width: `${overallProgress}%` }} />
+                        <div className="h-full bg-pink-400 rounded-full" style={{ width: `${overallProgress}%` }} />
                     </div>
                 </div>
               </div>
               
               {/* Subtle background glow */}
-              <div className="absolute -top-20 -right-20 w-64 h-64 bg-red-600/5 blur-[80px] rounded-full pointer-events-none" />
+              <div className="absolute -top-20 -right-20 w-64 h-64 bg-pink-400/5 blur-[80px] rounded-full pointer-events-none" />
             </div>
 
             {/* Daily Status Card */}
@@ -188,7 +188,7 @@ const App: React.FC = () => {
                      <div className="relative w-16 h-16">
                         <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
                             <path className="text-zinc-800" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
-                            <path className={`${completedCount === totalCount ? 'text-green-500' : 'text-red-500'} transition-all duration-1000`} strokeDasharray={`${dailyProgress}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
+                            <path className={`${completedCount === totalCount ? 'text-green-500' : 'text-pink-400'} transition-all duration-1000`} strokeDasharray={`${dailyProgress}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
                             <span className="text-xs font-bold">{Math.round(dailyProgress)}%</span>
@@ -209,7 +209,7 @@ const App: React.FC = () => {
 
             <button 
                 onClick={resetChallenge}
-                className="w-full py-4 rounded-xl border border-zinc-800 text-zinc-600 hover:text-red-500 hover:border-red-900/50 hover:bg-red-900/10 transition-all text-xs font-bold uppercase tracking-widest"
+                className="w-full py-4 rounded-xl border border-zinc-800 text-zinc-600 hover:text-pink-400 hover:border-pink-900/50 hover:bg-pink-900/10 transition-all text-xs font-bold uppercase tracking-widest"
             >
                 Reiniciar Reto
             </button>
@@ -237,7 +237,7 @@ const App: React.FC = () => {
       {/* Mobile Bottom Bar (Optional, keeps mobile app feel) */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#1C1C1E]/95 backdrop-blur-xl border-t border-white/5 p-4 z-50 pb-safe">
         <div className="flex justify-around items-center max-w-md mx-auto">
-            <button className="flex flex-col items-center gap-1 text-red-500">
+            <button className="flex flex-col items-center gap-1 text-pink-400">
                 <Icon name="flame" className="w-6 h-6" />
                 <span className="text-[10px] font-bold uppercase">Progreso</span>
             </button>
@@ -247,7 +247,7 @@ const App: React.FC = () => {
                 <span className="text-[10px] font-bold uppercase">Día</span>
             </button>
             <div className="w-px h-8 bg-white/10" />
-            <button className="flex flex-col items-center gap-1 text-zinc-600 hover:text-red-500 transition-colors" onClick={resetChallenge}>
+            <button className="flex flex-col items-center gap-1 text-zinc-600 hover:text-pink-400 transition-colors" onClick={resetChallenge}>
                 <Icon name="refresh" className="w-5 h-5" />
                 <span className="text-[10px] font-bold uppercase">Reiniciar</span>
             </button>
