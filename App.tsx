@@ -5,10 +5,13 @@ import { getArgentinaDateString, getDaysDifference } from './utils/time';
 import TaskItem from './components/TaskItem';
 import Timer from './components/Timer';
 import { Icon } from './components/Icons';
+import ThemeToggle from './components/ThemeToggle';
+import { useTheme } from './hooks/useTheme';
 
 const LOCAL_STORAGE_KEY = '75hard_argentina_state_v2';
 
 const App: React.FC = () => {
+  const { theme, toggleTheme } = useTheme();
   const [state, setState] = useState<ChallengeState>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     const todayStr = getArgentinaDateString();
@@ -125,21 +128,31 @@ const App: React.FC = () => {
   const overallProgress = (state.currentDay / 75) * 100;
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-pink-900 selection:text-white">
+    <div className={`min-h-screen transition-colors duration-300 ${
+      theme === 'dark' 
+        ? 'bg-black text-white selection:bg-pink-900 selection:text-white' 
+        : 'bg-white text-gray-900 selection:bg-pink-100 selection:text-pink-900'
+    }`}>
       {/* Top Navbar */}
-      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-pink-500/20">
+      <header className={`sticky top-0 z-50 backdrop-blur-xl border-b transition-colors duration-300 ${
+        theme === 'dark'
+          ? 'bg-black/80 border-pink-500/20'
+          : 'bg-white/80 border-pink-200/50'
+      }`}>
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Icon name="flame" className="text-pink-400 w-5 h-5 fill-pink-400" />
-            <h1 className="text-lg font-oswald font-bold tracking-tight italic">75 HARD</h1>
+            <Icon name="flame" className={`w-5 h-5 fill-current transition-colors duration-300 ${
+              theme === 'dark' ? 'text-pink-400' : 'text-pink-500'
+            }`} />
+            <h1 className={`text-lg font-oswald font-bold tracking-tight italic transition-colors duration-300 ${
+              theme === 'dark' ? 'text-white' : 'text-gray-900'
+            }`}>75 HARD</h1>
           </div>
           <div className="flex items-center gap-3">
              <div className="hidden sm:block">
-                <Timer />
+                <Timer theme={theme} />
              </div>
-             <div className="w-8 h-8 rounded-full bg-pink-950/50 flex items-center justify-center border border-pink-500/30">
-                <span className="text-xs font-bold text-pink-300">AR</span>
-             </div>
+             <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
         </div>
       </header>
@@ -152,34 +165,66 @@ const App: React.FC = () => {
           <aside className="space-y-6">
             
             {/* Main Day Card */}
-            <div className="bg-gradient-to-br from-pink-950/50 to-black/50 rounded-3xl p-8 border border-pink-500/20 relative overflow-hidden group backdrop-blur-sm">
+            <div className={`rounded-3xl p-8 border relative overflow-hidden group backdrop-blur-sm transition-colors duration-300 ${
+              theme === 'dark'
+                ? 'bg-gradient-to-br from-pink-950/50 to-black/50 border-pink-500/20'
+                : 'bg-gradient-to-br from-pink-50 to-white border-pink-200'
+            }`}>
               <div className="relative z-10">
-                <span className="text-pink-400 font-bold text-xs uppercase tracking-widest">Día Actual</span>
+                <span className={`font-bold text-xs uppercase tracking-widest transition-colors duration-300 ${
+                  theme === 'dark' ? 'text-pink-400' : 'text-pink-600'
+                }`}>Día Actual</span>
                 <div className="flex items-baseline gap-1 mt-2">
-                    <span className="text-7xl font-oswald font-bold text-white tracking-tighter">{state.currentDay}</span>
-                    <span className="text-2xl font-oswald text-pink-400 font-medium">/ 75</span>
+                    <span className={`text-7xl font-oswald font-bold tracking-tighter transition-colors duration-300 ${
+                      theme === 'dark' ? 'text-white' : 'text-gray-900'
+                    }`}>{state.currentDay}</span>
+                    <span className={`text-2xl font-oswald font-medium transition-colors duration-300 ${
+                      theme === 'dark' ? 'text-pink-400' : 'text-pink-500'
+                    }`}>/ 75</span>
                 </div>
                 
                 <div className="mt-8 space-y-2">
                     <div className="flex justify-between text-xs font-medium">
-                        <span className="text-pink-300">Progreso Total</span>
-                        <span className="text-white">{Math.round(overallProgress)}%</span>
+                        <span className={`text-xs font-medium transition-colors duration-300 ${
+                          theme === 'dark' ? 'text-pink-300' : 'text-pink-600'
+                        }`}>Progreso Total</span>
+                        <span className={`transition-colors duration-300 ${
+                          theme === 'dark' ? 'text-white' : 'text-gray-900'
+                        }`}>{Math.round(overallProgress)}%</span>
                     </div>
-                    <div className="h-1.5 w-full bg-black/50 rounded-full overflow-hidden border border-pink-500/20">
-                        <div className="h-full bg-pink-400 rounded-full" style={{ width: `${overallProgress}%` }} />
+                    <div className={`h-1.5 w-full rounded-full overflow-hidden border transition-colors duration-300 ${
+                      theme === 'dark'
+                        ? 'bg-black/50 border-pink-500/20'
+                        : 'bg-pink-100 border-pink-200'
+                    }`}>
+                        <div className={`h-full rounded-full transition-colors duration-300 ${
+                          theme === 'dark' ? 'bg-pink-400' : 'bg-pink-500'
+                        }`} style={{ width: `${overallProgress}%` }} />
                     </div>
                 </div>
               </div>
               
               {/* Subtle background glow */}
-              <div className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-pink-400/20 to-pink-600/10 blur-[80px] rounded-full pointer-events-none" />
+              <div className={`absolute -top-20 -right-20 w-64 h-64 blur-[80px] rounded-full pointer-events-none transition-opacity duration-300 ${
+                theme === 'dark'
+                  ? 'bg-gradient-to-br from-pink-400/20 to-pink-600/10'
+                  : 'bg-gradient-to-br from-pink-200/15 to-pink-300/10'
+              }`} />
             </div>
 
             {/* Daily Status Card */}
-            <div className="bg-gradient-to-br from-pink-950/30 to-black/30 rounded-3xl p-6 border border-pink-500/15 flex flex-col justify-between min-h-[160px] backdrop-blur-sm">
+            <div className={`bg-gradient-to-br rounded-3xl p-6 border flex flex-col justify-between min-h-[160px] backdrop-blur-sm transition-colors duration-300 ${
+              theme === 'dark'
+                ? 'from-pink-950/30 to-black/30 border-pink-500/15'
+                : 'from-pink-50 to-white border-pink-200'
+            }`}>
                 <div>
-                   <span className="text-pink-400 font-bold text-xs uppercase tracking-widest">Estado Diario</span>
-                   <h3 className="text-2xl font-oswald font-bold mt-1 text-white">
+                   <span className={`font-bold text-xs uppercase tracking-widest transition-colors duration-300 ${
+                     theme === 'dark' ? 'text-pink-400' : 'text-pink-600'
+                   }`}>Estado Diario</span>
+                   <h3 className={`text-2xl font-oswald font-bold mt-1 transition-colors duration-300 ${
+                     theme === 'dark' ? 'text-white' : 'text-gray-900'
+                   }`}>
                      {completedCount === totalCount ? "COMPLETADO" : "EN PROGRESO"}
                    </h3>
                 </div>
@@ -187,14 +232,20 @@ const App: React.FC = () => {
                 <div className="flex items-center gap-4 mt-4">
                      <div className="relative w-16 h-16">
                         <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                            <path className="text-black/50" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
-                            <path className={`${completedCount === totalCount ? 'text-green-500' : 'text-pink-400'} transition-all duration-1000`} strokeDasharray={`${dailyProgress}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
+                            <path className={`transition-colors duration-300 ${
+                              theme === 'dark' ? 'text-black/50' : 'text-gray-200'
+                            }`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
+                            <path className={`${completedCount === totalCount ? 'text-green-500' : (theme === 'dark' ? 'text-pink-400' : 'text-pink-500')} transition-all duration-1000`} strokeDasharray={`${dailyProgress}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-xs font-bold">{Math.round(dailyProgress)}%</span>
+                            <span className={`text-xs font-bold transition-colors duration-300 ${
+                              theme === 'dark' ? 'text-white' : 'text-gray-900'
+                            }`}>{Math.round(dailyProgress)}%</span>
                         </div>
                      </div>
-                     <p className="text-sm text-pink-300 leading-snug">
+                     <p className={`text-sm leading-snug transition-colors duration-300 ${
+                       theme === 'dark' ? 'text-pink-300' : 'text-pink-600'
+                     }`}>
                        {completedCount === totalCount 
                          ? "¡Gran trabajo! Has cumplido todos los objetivos."
                          : `${totalCount - completedCount} tareas restantes para terminar el día.`}
@@ -204,12 +255,16 @@ const App: React.FC = () => {
 
             {/* Mobile Timer (Visible only on mobile/tablet) */}
             <div className="sm:hidden flex justify-center py-2">
-                <Timer />
+                <Timer theme={theme} />
             </div>
 
             <button 
                 onClick={resetChallenge}
-                className="w-full py-4 rounded-xl border border-pink-500/30 text-pink-300 hover:text-white hover:border-pink-400 hover:bg-pink-950/50 transition-all text-xs font-bold uppercase tracking-widest backdrop-blur-sm"
+                className={`w-full py-4 rounded-xl border transition-all text-xs font-bold uppercase tracking-widest backdrop-blur-sm ${
+                  theme === 'dark'
+                    ? 'border-pink-500/30 text-pink-300 hover:text-white hover:border-pink-400 hover:bg-pink-950/50'
+                    : 'border-pink-200 text-pink-600 hover:text-white hover:border-pink-400 hover:bg-pink-500'
+                }`}
             >
                 Reiniciar Reto
             </button>
@@ -218,15 +273,19 @@ const App: React.FC = () => {
           {/* Right Column: Task List */}
           <section className="space-y-4">
              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-bold text-pink-300">Tareas de Hoy</h2>
-                <span className="text-pink-400 text-sm font-medium">
+                <h2 className={`text-xl font-bold transition-colors duration-300 ${
+                  theme === 'dark' ? 'text-pink-300' : 'text-pink-600'
+                }`}>Tareas de Hoy</h2>
+                <span className={`text-sm font-medium transition-colors duration-300 ${
+                  theme === 'dark' ? 'text-pink-400' : 'text-pink-500'
+                }`}>
                     {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </span>
              </div>
              
              <div className="grid gap-3">
                 {currentTasks.map(task => (
-                  <TaskItem key={task.id} task={task} onToggle={toggleTask} />
+                  <TaskItem key={task.id} task={task} onToggle={toggleTask} theme={theme} />
                 ))}
              </div>
           </section>
@@ -235,19 +294,33 @@ const App: React.FC = () => {
       </main>
 
       {/* Mobile Bottom Bar (Optional, keeps mobile app feel) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-pink-950/80 backdrop-blur-xl border-t border-pink-500/20 p-4 z-50 pb-safe">
+      <div className={`lg:hidden fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t p-4 z-50 pb-safe transition-colors duration-300 ${
+        theme === 'dark'
+          ? 'bg-gradient-to-t from-black/90 to-pink-950/80 border-pink-500/20'
+          : 'bg-gradient-to-t from-white/90 to-pink-50/80 border-pink-200'
+      }`}>
         <div className="flex justify-around items-center max-w-md mx-auto">
-            <button className="flex flex-col items-center gap-1 text-pink-400">
+            <button className={`flex flex-col items-center gap-1 transition-colors duration-300 ${
+              theme === 'dark' ? 'text-pink-400' : 'text-pink-500'
+            }`}>
                 <Icon name="flame" className="w-6 h-6" />
                 <span className="text-[10px] font-bold uppercase">Progreso</span>
             </button>
-            <div className="w-px h-8 bg-pink-500/20" />
-            <button className="flex flex-col items-center gap-1 text-pink-300" onClick={() => window.scrollTo({top:0, behavior:'smooth'})}>
+            <div className={`w-px h-8 transition-colors duration-300 ${
+              theme === 'dark' ? 'bg-pink-500/20' : 'bg-pink-200'
+            }`} />
+            <button className={`flex flex-col items-center gap-1 transition-colors duration-300 ${
+              theme === 'dark' ? 'text-pink-300' : 'text-pink-600'
+            }`} onClick={() => window.scrollTo({top:0, behavior:'smooth'})}>
                 <span className="text-lg font-oswald font-bold text-white leading-none">{state.currentDay}</span>
                 <span className="text-[10px] font-bold uppercase">Día</span>
             </button>
-            <div className="w-px h-8 bg-pink-500/20" />
-            <button className="flex flex-col items-center gap-1 text-zinc-600 hover:text-pink-400 transition-colors" onClick={resetChallenge}>
+            <div className={`w-px h-8 transition-colors duration-300 ${
+              theme === 'dark' ? 'bg-pink-500/20' : 'bg-pink-200'
+            }`} />
+            <button className={`flex flex-col items-center gap-1 transition-colors duration-300 ${
+              theme === 'dark' ? 'text-pink-300 hover:text-pink-400' : 'text-pink-600 hover:text-pink-500'
+            }`} onClick={resetChallenge}>
                 <Icon name="refresh" className="w-5 h-5" />
                 <span className="text-[10px] font-bold uppercase">Reiniciar</span>
             </button>

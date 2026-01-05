@@ -6,21 +6,24 @@ import { Icon } from './Icons';
 interface TaskItemProps {
   task: Task;
   onToggle: (id: string) => void;
+  theme: 'dark' | 'light';
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle }) => {
+const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, theme }) => {
   return (
     <button 
       onClick={() => onToggle(task.id)}
       className={`max-w-full w-full flex items-center gap-3 p-3 sm:gap-4 sm:p-4 rounded-2xl text-left transition-all duration-200 active:scale-[0.98] group ${
         task.completed 
-        ? 'bg-pink-950/30 opacity-60 border border-pink-500/10' 
-        : 'bg-pink-950/20 hover:bg-pink-950/40 border border-pink-500/20'
+        ? (theme === 'dark' ? 'bg-pink-950/30 opacity-60 border border-pink-500/10' : 'bg-pink-100/60 opacity-80 border border-pink-200/30')
+        : (theme === 'dark' ? 'bg-pink-950/20 hover:bg-pink-950/40 border border-pink-500/20' : 'bg-pink-50/40 hover:bg-pink-100/60 border border-pink-200/50')
       }`}
     >
       {/* Icon Container */}
       <div className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors duration-300 ${
-        task.completed ? 'bg-pink-900/50 text-pink-600' : 'bg-pink-900/30 text-pink-400 group-hover:bg-pink-900/50'
+        task.completed 
+          ? (theme === 'dark' ? 'bg-pink-900/50 text-pink-600' : 'bg-pink-200/50 text-pink-600')
+          : (theme === 'dark' ? 'bg-pink-900/30 text-pink-400 group-hover:bg-pink-900/50' : 'bg-pink-100/40 text-pink-500 group-hover:bg-pink-200/60')
       }`}>
         <Icon name={task.icon} className="w-5 h-5" />
       </div>
@@ -28,12 +31,16 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle }) => {
       {/* Text Content */}
       <div className="flex-1 min-w-0">
         <h3 className={`text-base font-bold leading-tight transition-colors break-words ${
-          task.completed ? 'text-pink-600 line-through' : 'text-white'
+          task.completed 
+            ? (theme === 'dark' ? 'text-pink-600 line-through' : 'text-pink-700 line-through')
+            : (theme === 'dark' ? 'text-white' : 'text-gray-900')
         }`}>
           {task.label}
         </h3>
         <p className={`text-xs mt-0.5 truncate transition-colors ${
-          task.completed ? 'text-pink-700' : 'text-pink-300'
+          task.completed 
+            ? (theme === 'dark' ? 'text-pink-700' : 'text-pink-600')
+            : (theme === 'dark' ? 'text-pink-300' : 'text-pink-500')
         }`}>
           {task.description}
         </p>
@@ -42,8 +49,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle }) => {
       {/* Checkbox UI */}
       <div className={`shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
         task.completed 
-        ? 'bg-pink-600 border-pink-600' 
-        : 'border-pink-500/50 group-hover:border-pink-400 bg-transparent'
+          ? 'bg-pink-600 border-pink-600' 
+          : (theme === 'dark' ? 'border-pink-500/50 group-hover:border-pink-400 bg-transparent' : 'border-pink-300/50 group-hover:border-pink-400 bg-transparent')
       }`}>
         {task.completed && (
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
