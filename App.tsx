@@ -127,7 +127,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-pink-900 selection:text-white">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/5">
+      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-pink-500/20">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Icon name="flame" className="text-pink-400 w-5 h-5 fill-pink-400" />
@@ -137,8 +137,8 @@ const App: React.FC = () => {
              <div className="hidden sm:block">
                 <Timer />
              </div>
-             <div className="w-8 h-8 rounded-full bg-[#1C1C1E] flex items-center justify-center border border-white/10">
-                <span className="text-xs font-bold text-zinc-400">AR</span>
+             <div className="w-8 h-8 rounded-full bg-pink-950/50 flex items-center justify-center border border-pink-500/30">
+                <span className="text-xs font-bold text-pink-300">AR</span>
              </div>
           </div>
         </div>
@@ -152,33 +152,33 @@ const App: React.FC = () => {
           <aside className="space-y-6">
             
             {/* Main Day Card */}
-            <div className="bg-[#1C1C1E] rounded-3xl p-8 border border-white/5 relative overflow-hidden group">
+            <div className="bg-gradient-to-br from-pink-950/50 to-black/50 rounded-3xl p-8 border border-pink-500/20 relative overflow-hidden group backdrop-blur-sm">
               <div className="relative z-10">
-                <span className="text-zinc-500 font-bold text-xs uppercase tracking-widest">Día Actual</span>
+                <span className="text-pink-400 font-bold text-xs uppercase tracking-widest">Día Actual</span>
                 <div className="flex items-baseline gap-1 mt-2">
                     <span className="text-7xl font-oswald font-bold text-white tracking-tighter">{state.currentDay}</span>
-                    <span className="text-2xl font-oswald text-zinc-600 font-medium">/ 75</span>
+                    <span className="text-2xl font-oswald text-pink-400 font-medium">/ 75</span>
                 </div>
                 
                 <div className="mt-8 space-y-2">
                     <div className="flex justify-between text-xs font-medium">
-                        <span className="text-zinc-400">Progreso Total</span>
+                        <span className="text-pink-300">Progreso Total</span>
                         <span className="text-white">{Math.round(overallProgress)}%</span>
                     </div>
-                    <div className="h-1.5 w-full bg-[#2C2C2E] rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-black/50 rounded-full overflow-hidden border border-pink-500/20">
                         <div className="h-full bg-pink-400 rounded-full" style={{ width: `${overallProgress}%` }} />
                     </div>
                 </div>
               </div>
               
               {/* Subtle background glow */}
-              <div className="absolute -top-20 -right-20 w-64 h-64 bg-pink-400/5 blur-[80px] rounded-full pointer-events-none" />
+              <div className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-pink-400/20 to-pink-600/10 blur-[80px] rounded-full pointer-events-none" />
             </div>
 
             {/* Daily Status Card */}
-            <div className="bg-[#1C1C1E] rounded-3xl p-6 border border-white/5 flex flex-col justify-between min-h-[160px]">
+            <div className="bg-gradient-to-br from-pink-950/30 to-black/30 rounded-3xl p-6 border border-pink-500/15 flex flex-col justify-between min-h-[160px] backdrop-blur-sm">
                 <div>
-                   <span className="text-zinc-500 font-bold text-xs uppercase tracking-widest">Estado Diario</span>
+                   <span className="text-pink-400 font-bold text-xs uppercase tracking-widest">Estado Diario</span>
                    <h3 className="text-2xl font-oswald font-bold mt-1 text-white">
                      {completedCount === totalCount ? "COMPLETADO" : "EN PROGRESO"}
                    </h3>
@@ -187,14 +187,14 @@ const App: React.FC = () => {
                 <div className="flex items-center gap-4 mt-4">
                      <div className="relative w-16 h-16">
                         <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                            <path className="text-zinc-800" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
+                            <path className="text-black/50" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
                             <path className={`${completedCount === totalCount ? 'text-green-500' : 'text-pink-400'} transition-all duration-1000`} strokeDasharray={`${dailyProgress}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
                             <span className="text-xs font-bold">{Math.round(dailyProgress)}%</span>
                         </div>
                      </div>
-                     <p className="text-sm text-zinc-400 leading-snug">
+                     <p className="text-sm text-pink-300 leading-snug">
                        {completedCount === totalCount 
                          ? "¡Gran trabajo! Has cumplido todos los objetivos."
                          : `${totalCount - completedCount} tareas restantes para terminar el día.`}
@@ -209,7 +209,7 @@ const App: React.FC = () => {
 
             <button 
                 onClick={resetChallenge}
-                className="w-full py-4 rounded-xl border border-zinc-800 text-zinc-600 hover:text-pink-400 hover:border-pink-900/50 hover:bg-pink-900/10 transition-all text-xs font-bold uppercase tracking-widest"
+                className="w-full py-4 rounded-xl border border-pink-500/30 text-pink-300 hover:text-white hover:border-pink-400 hover:bg-pink-950/50 transition-all text-xs font-bold uppercase tracking-widest backdrop-blur-sm"
             >
                 Reiniciar Reto
             </button>
@@ -218,8 +218,8 @@ const App: React.FC = () => {
           {/* Right Column: Task List */}
           <section className="space-y-4">
              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-bold">Tareas de Hoy</h2>
-                <span className="text-zinc-500 text-sm font-medium">
+                <h2 className="text-xl font-bold text-pink-300">Tareas de Hoy</h2>
+                <span className="text-pink-400 text-sm font-medium">
                     {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </span>
              </div>
@@ -235,18 +235,18 @@ const App: React.FC = () => {
       </main>
 
       {/* Mobile Bottom Bar (Optional, keeps mobile app feel) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#1C1C1E]/95 backdrop-blur-xl border-t border-white/5 p-4 z-50 pb-safe">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-pink-950/80 backdrop-blur-xl border-t border-pink-500/20 p-4 z-50 pb-safe">
         <div className="flex justify-around items-center max-w-md mx-auto">
             <button className="flex flex-col items-center gap-1 text-pink-400">
                 <Icon name="flame" className="w-6 h-6" />
                 <span className="text-[10px] font-bold uppercase">Progreso</span>
             </button>
-            <div className="w-px h-8 bg-white/10" />
-            <button className="flex flex-col items-center gap-1 text-zinc-600" onClick={() => window.scrollTo({top:0, behavior:'smooth'})}>
+            <div className="w-px h-8 bg-pink-500/20" />
+            <button className="flex flex-col items-center gap-1 text-pink-300" onClick={() => window.scrollTo({top:0, behavior:'smooth'})}>
                 <span className="text-lg font-oswald font-bold text-white leading-none">{state.currentDay}</span>
                 <span className="text-[10px] font-bold uppercase">Día</span>
             </button>
-            <div className="w-px h-8 bg-white/10" />
+            <div className="w-px h-8 bg-pink-500/20" />
             <button className="flex flex-col items-center gap-1 text-zinc-600 hover:text-pink-400 transition-colors" onClick={resetChallenge}>
                 <Icon name="refresh" className="w-5 h-5" />
                 <span className="text-[10px] font-bold uppercase">Reiniciar</span>

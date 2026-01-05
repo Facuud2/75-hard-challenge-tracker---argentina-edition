@@ -13,15 +13,15 @@ const Timer: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex items-center gap-2 text-zinc-500">
+    <div className="flex items-center gap-2 text-pink-300">
       <div className="flex gap-0.5">
-         <span className="bg-zinc-800 text-white text-xs font-mono py-1 px-1.5 rounded">{String(timeLeft.hours).padStart(2, '0')}</span>
-         <span className="py-1">:</span>
-         <span className="bg-zinc-800 text-white text-xs font-mono py-1 px-1.5 rounded">{String(timeLeft.minutes).padStart(2, '0')}</span>
-         <span className="py-1">:</span>
-         <span className="bg-zinc-800 text-white text-xs font-mono py-1 px-1.5 rounded">{String(timeLeft.seconds).padStart(2, '0')}</span>
+         <span className="bg-pink-950/50 text-pink-300 text-xs font-mono py-1 px-1.5 rounded border border-pink-500/20">{String(timeLeft.hours).padStart(2, '0')}</span>
+         <span className="py-1 text-pink-400">:</span>
+         <span className="bg-pink-950/50 text-pink-300 text-xs font-mono py-1 px-1.5 rounded border border-pink-500/20">{String(timeLeft.minutes).padStart(2, '0')}</span>
+         <span className="py-1 text-pink-400">:</span>
+         <span className="bg-pink-950/50 text-pink-300 text-xs font-mono py-1 px-1.5 rounded border border-pink-500/20">{String(timeLeft.seconds).padStart(2, '0')}</span>
       </div>
-      <span className="text-[10px] font-bold uppercase tracking-wider">hasta reset (ART)</span>
+      <span className="text-[10px] font-bold uppercase tracking-wider text-pink-400">hasta reset (ART)</span>
     </div>
   );
 };
