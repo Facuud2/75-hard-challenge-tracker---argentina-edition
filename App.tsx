@@ -8,11 +8,17 @@ import { Icon } from './components/Icons';
 import ThemeToggle from './components/ThemeToggle';
 import { useTheme } from './hooks/useTheme';
 import InstallPWA from './components/InstallPWA';
+import CalendarioInteligente from './components/moduleC/CalendarioInteligente';
+import DayModal from './components/moduleC/DayModal';
+import { useModuleC } from './hooks/useModuleC';
 
 const LOCAL_STORAGE_KEY = '75hard_argentina_state_v2';
 
 const App: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
+  const moduleC = useModuleC();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedModalDate, setSelectedModalDate] = useState<string | null>(null);
   const [state, setState] = useState<ChallengeState>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     const todayStr = getArgentinaDateString();
@@ -259,6 +265,17 @@ const App: React.FC = () => {
                 <Timer theme={theme} />
             </div>
 
+            {/* Calendar */}
+            <CalendarioInteligente
+              theme={theme}
+              challengeHistory={state.history}
+              onDateSelect={(date) => {
+                setSelectedModalDate(date);
+                setIsModalOpen(true);
+              }}
+              selectedDate={selectedModalDate}
+            />
+
             <button 
                 onClick={resetChallenge}
                 className={`w-full py-4 rounded-xl border transition-all text-xs font-bold uppercase tracking-widest backdrop-blur-sm ${
@@ -292,6 +309,21 @@ const App: React.FC = () => {
           </section>
 
         </div>
+
+        {/* Modal para día seleccionado */}
+        {isModalOpen && selectedModalDate && (
+          <DayModal
+            theme={theme}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            date={selectedModalDate}
+            dailyLog={moduleC.getDailyLog(selectedModalDate)}
+            onSave={moduleC.saveDailyLog}
+            photos={moduleC.getPhotosForDate(selectedModalDate)}
+            onPhotoUpload={moduleC.uploadPhoto}
+            onPhotoDelete={moduleC.deletePhoto}
+          />
+        )}
       </main>
 
       {/* Mobile Bottom Bar (Optional, keeps mobile app feel) */}
