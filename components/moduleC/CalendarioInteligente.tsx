@@ -71,30 +71,40 @@ const CalendarioInteligente: React.FC<CalendarioInteligenteProps> = ({
   const getDayColor = (day: CalendarDay) => {
     switch (day.status) {
       case 'completed':
-        return theme === 'dark' ? 'bg-green-900 border-green-600' : 'bg-green-100 border-green-500';
+        return theme === 'dark' 
+          ? 'bg-gradient-to-br from-pink-900/80 to-pink-950/80 border-pink-500/40 shadow-pink-500/20' 
+          : 'bg-gradient-to-br from-pink-100/80 to-pink-50/80 border-pink-500/40 shadow-pink-500/10';
       case 'failed':
-        return theme === 'dark' ? 'bg-red-900 border-red-600' : 'bg-red-100 border-red-500';
+        return theme === 'dark' 
+          ? 'bg-gradient-to-br from-pink-900/60 to-pink-950/60 border-pink-600/40 shadow-pink-600/20' 
+          : 'bg-gradient-to-br from-pink-200/80 to-pink-100/80 border-pink-600/40 shadow-pink-600/10';
       case 'pending':
-        return theme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-gray-100 border-gray-400';
+        return theme === 'dark' 
+          ? 'bg-gradient-to-br from-pink-950/40 to-pink-900/40 border-pink-700/30' 
+          : 'bg-gradient-to-br from-pink-50/60 to-pink-100/60 border-pink-400/30';
       case 'future':
-        return theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-300';
+        return theme === 'dark' 
+          ? 'bg-gradient-to-br from-pink-950/20 to-black/40 border-pink-800/20' 
+          : 'bg-gradient-to-br from-pink-50/40 to-white/40 border-pink-300/20';
       default:
-        return theme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-gray-100 border-gray-400';
+        return theme === 'dark' 
+          ? 'bg-gradient-to-br from-pink-950/40 to-pink-900/40 border-pink-700/30' 
+          : 'bg-gradient-to-br from-pink-50/60 to-pink-100/60 border-pink-400/30';
     }
   };
 
   const getDayTextColor = (day: CalendarDay) => {
     switch (day.status) {
       case 'completed':
-        return theme === 'dark' ? 'text-green-300' : 'text-green-700';
+        return theme === 'dark' ? 'text-pink-200' : 'text-pink-800';
       case 'failed':
-        return theme === 'dark' ? 'text-red-300' : 'text-red-700';
+        return theme === 'dark' ? 'text-pink-300' : 'text-pink-700';
       case 'pending':
-        return theme === 'dark' ? 'text-gray-300' : 'text-gray-600';
+        return theme === 'dark' ? 'text-pink-300' : 'text-pink-600';
       case 'future':
-        return theme === 'dark' ? 'text-gray-500' : 'text-gray-400';
+        return theme === 'dark' ? 'text-pink-500' : 'text-pink-400';
       default:
-        return theme === 'dark' ? 'text-gray-300' : 'text-gray-600';
+        return theme === 'dark' ? 'text-pink-300' : 'text-pink-600';
     }
   };
 
@@ -192,7 +202,9 @@ const CalendarioInteligente: React.FC<CalendarioInteligenteProps> = ({
                 {day.status !== 'future' && day.totalTasks > 0 && (
                   <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
                     <div className={`w-2.5 h-2.5 rounded-full shadow-sm ${
-                      day.tasksCompleted === day.totalTasks ? 'bg-green-500 shadow-green-500/50' : 'bg-yellow-500 shadow-yellow-500/50'
+                      day.tasksCompleted === day.totalTasks 
+                        ? 'bg-gradient-to-br from-pink-500 to-pink-600 shadow-pink-500/50' 
+                        : 'bg-gradient-to-br from-pink-400 to-pink-500 shadow-pink-400/50'
                     }`} />
                   </div>
                 )}
@@ -212,8 +224,8 @@ const CalendarioInteligente: React.FC<CalendarioInteligenteProps> = ({
           <div className="flex items-center gap-2">
             <div className={`w-4 h-4 rounded-full border shadow-sm ${
               theme === 'dark' 
-                ? 'bg-green-900 border-green-600 shadow-green-600/30' 
-                : 'bg-green-100 border-green-500 shadow-green-500/20'
+                ? 'bg-gradient-to-br from-pink-900/80 to-pink-950/80 border-pink-500/40 shadow-pink-500/20' 
+                : 'bg-gradient-to-br from-pink-100/80 to-pink-50/80 border-pink-500/40 shadow-pink-500/10'
             }`} />
             <span className={`font-medium transition-colors duration-300 ${
               theme === 'dark' ? 'text-pink-300' : 'text-pink-600'
@@ -222,8 +234,8 @@ const CalendarioInteligente: React.FC<CalendarioInteligenteProps> = ({
           <div className="flex items-center gap-2">
             <div className={`w-4 h-4 rounded-full border shadow-sm ${
               theme === 'dark' 
-                ? 'bg-red-900 border-red-600 shadow-red-600/30' 
-                : 'bg-red-100 border-red-500 shadow-red-500/20'
+                ? 'bg-gradient-to-br from-pink-900/60 to-pink-950/60 border-pink-600/40 shadow-pink-600/20' 
+                : 'bg-gradient-to-br from-pink-200/80 to-pink-100/80 border-pink-600/40 shadow-pink-600/10'
             }`} />
             <span className={`font-medium transition-colors duration-300 ${
               theme === 'dark' ? 'text-pink-300' : 'text-pink-600'
@@ -232,8 +244,8 @@ const CalendarioInteligente: React.FC<CalendarioInteligenteProps> = ({
           <div className="flex items-center gap-2">
             <div className={`w-4 h-4 rounded-full border shadow-sm ${
               theme === 'dark' 
-                ? 'bg-gray-800 border-gray-600 shadow-gray-600/30' 
-                : 'bg-gray-100 border-gray-400 shadow-gray-400/20'
+                ? 'bg-gradient-to-br from-pink-950/40 to-pink-900/40 border-pink-700/30' 
+                : 'bg-gradient-to-br from-pink-50/60 to-pink-100/60 border-pink-400/30'
             }`} />
             <span className={`font-medium transition-colors duration-300 ${
               theme === 'dark' ? 'text-pink-300' : 'text-pink-600'
