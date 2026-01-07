@@ -7,6 +7,7 @@ import Timer from './components/Timer';
 import { Icon } from './components/Icons';
 import ThemeToggle from './components/ThemeToggle';
 import { useTheme } from './hooks/useTheme';
+import InstallPWA from './components/InstallPWA';
 
 const LOCAL_STORAGE_KEY = '75hard_argentina_state_v2';
 
@@ -326,7 +327,10 @@ const App: React.FC = () => {
             </button>
         </div>
       </div>
+    
+    <InstallPWA />
     </div>
+    
   );
 };
 

@@ -1,0 +1,21 @@
+{
+  "name": "75 Days HARD",
+  "short_name": "75HARD",
+  "description": "Seguimiento del desafío 75 Days HARD",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#ec4899",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
