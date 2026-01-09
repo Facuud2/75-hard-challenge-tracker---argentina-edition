@@ -10,6 +10,7 @@ import { useTheme } from './hooks/useTheme';
 import InstallPWA from './components/InstallPWA';
 import CalendarioInteligente from './components/moduleC/CalendarioInteligente';
 import DayModal from './components/moduleC/DayModal';
+import PlanSelector from './components/PlanSelector';
 import { useModuleC } from './hooks/useModuleC';
 
 const LOCAL_STORAGE_KEY = '75hard_argentina_state_v2';
@@ -19,6 +20,7 @@ const App: React.FC = () => {
   const moduleC = useModuleC();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedModalDate, setSelectedModalDate] = useState<string | null>(null);
+  const [isPlanSelectorOpen, setIsPlanSelectorOpen] = useState(false);
   const [state, setState] = useState<ChallengeState>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     const todayStr = getArgentinaDateString();
@@ -121,6 +123,12 @@ const App: React.FC = () => {
     }
   };
 
+  const handleSelectPlan = (plan: any) => {
+    console.log('Plan seleccionado:', plan);
+    // Aquí implementaremos la lógica para cambiar el plan
+    alert(`Plan "${plan.name}" seleccionado! (Funcionalidad por implementar)`);
+  };
+
   const todayData = useMemo(() => 
     state.history.find(h => h.dateString === state.lastVisitedDate),
     [state.history, state.lastVisitedDate]
@@ -159,6 +167,18 @@ const App: React.FC = () => {
              <div className="hidden sm:block">
                 <Timer theme={theme} />
              </div>
+             {/* Debug Button - Plan Selector */}
+             <button
+               onClick={() => setIsPlanSelectorOpen(true)}
+               className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
+                 theme === 'dark'
+                   ? 'bg-pink-600/20 text-pink-300 hover:bg-pink-600/30 border border-pink-500/30'
+                   : 'bg-pink-100 text-pink-600 hover:bg-pink-200 border border-pink-300'
+               }`}
+             >
+               <Icon name="target" className="w-4 h-4" />
+               <span className="ml-1">Planes</span>
+             </button>
              <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
         </div>
@@ -324,6 +344,14 @@ const App: React.FC = () => {
             onPhotoDelete={moduleC.deletePhoto}
           />
         )}
+
+        {/* Plan Selector Modal */}
+        <PlanSelector
+          theme={theme}
+          isOpen={isPlanSelectorOpen}
+          onClose={() => setIsPlanSelectorOpen(false)}
+          onSelectPlan={handleSelectPlan}
+        />
       </main>
 
       {/* Mobile Bottom Bar (Optional, keeps mobile app feel) */}
