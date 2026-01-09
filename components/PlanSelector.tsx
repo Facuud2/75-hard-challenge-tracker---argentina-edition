@@ -88,7 +88,6 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [customTasks, setCustomTasks] = useState<string[]>([]);
   const [editingTask, setEditingTask] = useState<string | null>(null);
-  const [newTaskMode, setNewTaskMode] = useState(false);
   const [customTaskDefinitions, setCustomTaskDefinitions] = useState([
     { id: 'custom-diet', label: 'Dieta Personalizada', description: 'Define tus propias reglas alimenticias', icon: 'utensils' },
     { id: 'custom-workout', label: 'Ejercicio Personalizado', description: 'Establece tu rutina de entrenamiento', icon: 'dumbbell' },
@@ -140,7 +139,6 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
     setCustomTaskDefinitions(prev => [...prev, newTask]);
     setCustomTasks(prev => [...prev, newTask.id]);
     setEditingTask(newTask.id);
-    setNewTaskMode(false);
   };
 
   const confirmCustomPlan = () => {
@@ -320,30 +318,104 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {customTaskDefinitions.map((task) => (
-                    <div
-                      key={task.id}
-                      onClick={() => toggleCustomTask(task.id)}
-                      className={`relative rounded-2xl border-2 p-4 cursor-pointer transition-all duration-300 ${
-                        customTasks.includes(task.id)
-                          ? 'border-green-500 bg-green-500/10'
-                          : theme === 'dark'
-                            ? 'border-gray-600 hover:border-gray-500 bg-gray-800/50'
-                            : 'border-gray-300 hover:border-gray-400 bg-gray-50/50'
-                      }`}
-                    >
-                      {/* Selection Indicator */}
-                      {customTasks.includes(task.id) && (
-                        <div className="absolute top-3 left-3">
-                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                            <Icon name="check" className="w-4 h-4 text-white" />
+                    <div key={task.id} className="relative">
+                      {/* Task Card */}
+                      <div
+                        onClick={() => toggleCustomTask(task.id)}
+                        className={`relative rounded-2xl border-2 p-4 cursor-pointer transition-all duration-300 ${
+                          customTasks.includes(task.id)
+                            ? 'border-green-500 bg-green-500/10'
+                            : theme === 'dark'
+                              ? 'border-gray-600 hover:border-gray-500 bg-gray-800/50'
+                              : 'border-gray-300 hover:border-gray-400 bg-gray-50/50'
+                        }`}
+                      >
+                        {/* Selection Indicator */}
+                        {customTasks.includes(task.id) && (
+                          <div className="absolute top-3 left-3">
+                            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                              <Icon name="check" className="w-4 h-4 text-white" />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Task Content */}
+                        <div className="pr-20">
+                          <div className="flex items-start gap-3">
+                            <Icon 
+                              name={task.icon} 
+                              className={`w-5 h-5 mt-0.5 ${
+                                customTasks.includes(task.id) 
+                                  ? 'text-green-500' 
+                                  : theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                              }`} 
+                            />
+                            <div className="flex-1">
+                              {editingTask === task.id ? (
+                                <div className="space-y-2">
+                                  <input
+                                    type="text"
+                                    value={task.label}
+                                    onChange={(e) => updateTaskDefinition(task.id, 'label', e.target.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className={`w-full px-2 py-1 rounded text-sm font-medium border ${
+                                      theme === 'dark'
+                                        ? 'bg-gray-700 border-gray-600 text-white'
+                                        : 'bg-white border-gray-300 text-gray-900'
+                                    }`}
+                                  />
+                                  <textarea
+                                    value={task.description}
+                                    onChange={(e) => updateTaskDefinition(task.id, 'description', e.target.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                    rows={2}
+                                    className={`w-full px-2 py-1 rounded text-sm border resize-none ${
+                                      theme === 'dark'
+                                        ? 'bg-gray-700 border-gray-600 text-white'
+                                        : 'bg-white border-gray-300 text-gray-900'
+                                    }`}
+                                  />
+                                  <div className="flex gap-2">
+                                    <select
+                                      value={task.icon}
+                                      onChange={(e) => {
+                                        const updatedTask = { ...task, icon: e.target.value };
+                                        setCustomTaskDefinitions(prev => 
+                                          prev.map(t => t.id === task.id ? updatedTask : t)
+                                        );
+                                      }}
+                                      onClick={(e) => e.stopPropagation()}
+                                      className={`flex-1 px-2 py-1 rounded text-xs border ${
+                                        theme === 'dark'
+                                          ? 'bg-gray-700 border-gray-600 text-white'
+                                          : 'bg-white border-gray-300 text-gray-900'
+                                      }`}
+                                    >
+                                      {availableIcons.map(icon => (
+                                        <option key={icon} value={icon}>{icon}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                                    {task.label}
+                                  </p>
+                                  <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                                    {task.description}
+                                  </p>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      )}
+                      </div>
 
-                      {/* Action Buttons */}
-                      <div className="absolute top-3 right-3 flex gap-1">
+                      {/* Action Buttons - Left side of card, completely outside */}
+                      <div className="absolute -top-6 -left-2 flex gap-1">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -375,84 +447,12 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                           <Icon name="trash-2" className="w-4 h-4" />
                         </button>
                       </div>
-
-                      {/* Task Content */}
-                      <div className="pt-8">
-                        <div className="flex items-start gap-3">
-                          <Icon 
-                            name={task.icon} 
-                            className={`w-5 h-5 mt-0.5 ${
-                              customTasks.includes(task.id) 
-                                ? 'text-green-500' 
-                                : theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                            }`} 
-                          />
-                          <div className="flex-1">
-                            {editingTask === task.id ? (
-                              <div className="space-y-2">
-                                <input
-                                  type="text"
-                                  value={task.label}
-                                  onChange={(e) => updateTaskDefinition(task.id, 'label', e.target.value)}
-                                  onClick={(e) => e.stopPropagation()}
-                                  className={`w-full px-2 py-1 rounded text-sm font-medium border ${
-                                    theme === 'dark'
-                                      ? 'bg-gray-700 border-gray-600 text-white'
-                                      : 'bg-white border-gray-300 text-gray-900'
-                                  }`}
-                                />
-                                <textarea
-                                  value={task.description}
-                                  onChange={(e) => updateTaskDefinition(task.id, 'description', e.target.value)}
-                                  onClick={(e) => e.stopPropagation()}
-                                  rows={2}
-                                  className={`w-full px-2 py-1 rounded text-sm border resize-none ${
-                                    theme === 'dark'
-                                      ? 'bg-gray-700 border-gray-600 text-white'
-                                      : 'bg-white border-gray-300 text-gray-900'
-                                  }`}
-                                />
-                                <div className="flex gap-2">
-                                  <select
-                                    value={task.icon}
-                                    onChange={(e) => {
-                                      const updatedTask = { ...task, icon: e.target.value };
-                                      setCustomTaskDefinitions(prev => 
-                                        prev.map(t => t.id === task.id ? updatedTask : t)
-                                      );
-                                    }}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className={`flex-1 px-2 py-1 rounded text-xs border ${
-                                      theme === 'dark'
-                                        ? 'bg-gray-700 border-gray-600 text-white'
-                                        : 'bg-white border-gray-300 text-gray-900'
-                                    }`}
-                                  >
-                                    {availableIcons.map(icon => (
-                                      <option key={icon} value={icon}>{icon}</option>
-                                    ))}
-                                  </select>
-                                </div>
-                              </div>
-                            ) : (
-                              <>
-                                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                                  {task.label}
-                                </p>
-                                <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                                  {task.description}
-                                </p>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   ))}
 
                   {/* Add New Task Button */}
                   <div
-                    onClick={() => setNewTaskMode(true)}
+                    onClick={() => addNewCustomTask()}
                     className={`relative rounded-2xl border-2 border-dashed p-4 cursor-pointer transition-all duration-300 ${
                       theme === 'dark'
                         ? 'border-gray-600 hover:border-gray-500 bg-gray-800/30 hover:bg-gray-800/50'
@@ -541,13 +541,9 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
               {!isCustomizing ? (
                 selectedPlan ? `Plan seleccionado: ${selectedPlan.name}` : 'No hay plan seleccionado'
               ) : (
-                newTaskMode ? (
-                  'Configura tu nueva tarea personalizada'
-                ) : (
-                  customTasks.length > 0 
-                    ? `${customTasks.length} ${customTasks.length === 1 ? 'tarea' : 'tareas'} seleccionadas`
-                    : 'Selecciona al menos una tarea'
-                )
+                customTasks.length > 0 
+                  ? `${customTasks.length} ${customTasks.length === 1 ? 'tarea' : 'tareas'} seleccionadas`
+                  : 'Selecciona al menos una tarea'
               )}
             </div>
             
@@ -580,34 +576,6 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                     }`}
                   >
                     Comenzar Desafío
-                  </button>
-                </>
-              ) : newTaskMode ? (
-                <>
-                  <button
-                    onClick={() => {
-                      setNewTaskMode(false);
-                      // Remove the last added task if it was cancelled
-                      setCustomTaskDefinitions(prev => prev.slice(0, -1));
-                      setCustomTasks(prev => prev.slice(0, -1));
-                    }}
-                    className={`px-6 py-3 rounded-xl transition-all duration-300 font-medium ${
-                      theme === 'dark' 
-                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
-                    }`}
-                  >
-                    Cancelar
-                  </button>
-                  
-                  <button
-                    onClick={() => {
-                      setNewTaskMode(false);
-                      // The task is already added, just exit new task mode
-                    }}
-                    className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-300 font-medium"
-                  >
-                    Agregar Tarea
                   </button>
                 </>
               ) : (
