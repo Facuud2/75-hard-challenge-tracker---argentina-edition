@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Icon } from './Icons';
 
 interface ChallengePlan {
@@ -98,6 +98,24 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
   ]);
 
   const availableIcons = ['utensils', 'dumbbell', 'droplet', 'book-open', 'heart', 'moon', 'star', 'target', 'zap', 'shield'];
+
+  // Handle Enter key to confirm editing
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter' && editingTask) {
+        event.preventDefault();
+        setEditingTask(null);
+      }
+    };
+
+    if (editingTask) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editingTask]);
 
   const handlePlanSelect = (plan: ChallengePlan) => {
     if (plan.id === 'custom') {
@@ -203,7 +221,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
       />
       
       {/* Modal Content */}
-      <div className={`relative w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 ${
+      <div className={`relative w-full max-w-6xl max-h-[85vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 ${
         theme === 'dark'
           ? 'bg-gradient-to-br from-pink-950/95 to-black/95 border-pink-500/20'
           : 'bg-gradient-to-br from-pink-50/95 to-white/95 border-pink-200'
@@ -240,7 +258,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-6 max-h-[calc(85vh-180px)] scrollbar-thin scrollbar-thumb-pink-500/20 scrollbar-track-transparent hover:scrollbar-thumb-pink-500/40">
             {!isCustomizing ? (
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {CHALLENGE_PLANS.map((plan) => (
@@ -398,6 +416,19 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                                       ))}
                                     </select>
                                   </div>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditingTask(null);
+                                    }}
+                                    className={`w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                      theme === 'dark'
+                                        ? 'bg-green-600 text-white hover:bg-green-700'
+                                        : 'bg-green-500 text-white hover:bg-green-600'
+                                    }`}
+                                  >
+                                    Confirmar Cambios
+                                  </button>
                                 </div>
                               ) : (
                                 <>
