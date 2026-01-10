@@ -166,8 +166,16 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
         tasks: customTaskDefinitions.filter(task => customTasks.includes(task.id))
       };
       onSelectPlan(customPlan);
-      onClose();
+      handleClose();
     }
+  };
+
+  const handleClose = () => {
+    setSelectedPlan(null);
+    setIsCustomizing(false);
+    setCustomTasks([]);
+    setEditingTask(null);
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -217,11 +225,11 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={handleClose}
       />
       
       {/* Modal Content */}
-      <div className={`relative w-full max-w-6xl max-h-[85vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 ${
+      <div className={`relative w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 ${
         theme === 'dark'
           ? 'bg-gradient-to-br from-pink-950/95 to-black/95 border-pink-500/20'
           : 'bg-gradient-to-br from-pink-50/95 to-white/95 border-pink-200'
@@ -235,10 +243,10 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
 
         <div className="relative z-10 h-full flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-pink-500/20">
-            <div className="flex items-center gap-3">
-              <Icon name="target" className="w-6 h-6 text-pink-500" />
-              <h2 className={`text-2xl font-bold transition-colors duration-300 ${
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-pink-500/20">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Icon name="target" className="w-5 h-5 sm:w-6 sm:h-6 text-pink-500" />
+              <h2 className={`text-lg sm:text-2xl font-bold transition-colors duration-300 ${
                 theme === 'dark' ? 'text-white' : 'text-gray-900'
               }`}>
                 Seleccionar Plan de Desafío
@@ -246,21 +254,21 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
             </div>
             
             <button
-              onClick={onClose}
-              className={`p-3 rounded-xl transition-all duration-300 ${
+              onClick={handleClose}
+              className={`p-2 sm:p-3 rounded-xl transition-all duration-300 ${
                 theme === 'dark' 
                   ? 'hover:bg-pink-950/50 text-pink-300 hover:text-pink-200 border border-pink-500/20' 
                   : 'hover:bg-pink-100 text-pink-600 hover:text-pink-500 border border-pink-200'
               }`}
             >
-              <Icon name="x" className="w-5 h-5" />
+              <Icon name="x" className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6 max-h-[calc(85vh-180px)] scrollbar-thin scrollbar-thumb-pink-500/20 scrollbar-track-transparent hover:scrollbar-thumb-pink-500/40">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-h-[calc(90vh-160px)] scrollbar-thin scrollbar-thumb-pink-500/20 scrollbar-track-transparent hover:scrollbar-thumb-pink-500/40">
             {!isCustomizing ? (
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 {CHALLENGE_PLANS.map((plan) => (
                   <div
                     key={plan.id}
@@ -336,7 +344,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                   {customTaskDefinitions.map((task) => (
                     <div key={task.id} className="relative">
                       {/* Task Card */}
@@ -527,39 +535,68 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
             )}
 
             {/* Selected Plan Details */}
-            {selectedPlan && (
-              <div className={`mt-6 p-6 rounded-2xl border ${
-                theme === 'dark' 
-                  ? 'bg-pink-950/30 border-pink-500/20' 
-                  : 'bg-pink-50/30 border-pink-200'
-              }`}>
-                <h3 className={`text-lg font-semibold mb-3 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                  Resumen del Plan Seleccionado
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <span className={`block font-medium ${theme === 'dark' ? 'text-pink-300' : 'text-pink-600'}`}>
-                      Duración
-                    </span>
-                    <span className={`block ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            {selectedPlan && !isCustomizing && (
+              <div className="mt-4 space-y-6">
+                <div className="text-center">
+                  <h3 className={`text-xl sm:text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                    Características del Plan
+                  </h3>
+                  <p className={`text-sm mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Tu plan {selectedPlan.name} incluye las siguientes tareas diarias
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {selectedPlan.tasks.map((task) => (
+                    <div key={task.id} className="relative">
+                      {/* Task Card */}
+                      <div className={`relative rounded-2xl border-2 p-4 transition-all duration-300 ${
+                        theme === 'dark'
+                          ? 'border-gray-600 bg-gray-800/50'
+                          : 'border-gray-300 bg-gray-50/50'
+                      }`}>
+                        {/* Task Content */}
+                        <div className="flex items-start gap-3">
+                          <Icon 
+                            name={task.icon} 
+                            className={`w-5 h-5 mt-0.5 ${
+                              theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                            }`} 
+                          />
+                          <div className="flex-1">
+                            <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                              {task.label}
+                            </p>
+                            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {task.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Plan Summary */}
+                <div className={`p-3 sm:p-4 rounded-xl border ${
+                  theme === 'dark' 
+                    ? 'bg-pink-950/20 border-pink-500/20' 
+                    : 'bg-pink-50/20 border-pink-200'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`font-medium ${theme === 'dark' ? 'text-pink-300' : 'text-pink-700'}`}>
+                        Resumen del Plan
+                      </p>
+                      <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {selectedPlan.name} • {selectedPlan.tasks.length} tareas diarias
+                      </p>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      theme === 'dark' ? 'bg-pink-500/20 text-pink-300' : 'bg-pink-100 text-pink-700'
+                    }`}>
                       {selectedPlan.duration} días
-                    </span>
-                  </div>
-                  <div>
-                    <span className={`block font-medium ${theme === 'dark' ? 'text-pink-300' : 'text-pink-600'}`}>
-                      Tareas Diarias
-                    </span>
-                    <span className={`block ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                      {selectedPlan.tasks.length} compromisos
-                    </span>
-                  </div>
-                  <div>
-                    <span className={`block font-medium ${theme === 'dark' ? 'text-pink-300' : 'text-pink-600'}`}>
-                      Dificultad
-                    </span>
-                    <span className={`block capitalize ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                      {selectedPlan.id}
-                    </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -567,8 +604,8 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-between p-6 border-t border-pink-500/20">
-            <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+          <div className="flex flex-col sm:flex-row items-center justify-between p-4 sm:p-6 border-t border-pink-500/20 gap-4 sm:gap-0">
+            <div className={`text-sm text-center sm:text-left ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
               {!isCustomizing ? (
                 selectedPlan ? `Plan seleccionado: ${selectedPlan.name}` : 'No hay plan seleccionado'
               ) : (
@@ -578,12 +615,12 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
               )}
             </div>
             
-            <div className="flex gap-3">
+            <div className="flex gap-3 w-full sm:w-auto">
               {!isCustomizing ? (
                 <>
                   <button
-                    onClick={onClose}
-                    className={`px-6 py-3 rounded-xl transition-all duration-300 font-medium ${
+                    onClick={handleClose}
+                    className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${
                       theme === 'dark' 
                         ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' 
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
@@ -596,11 +633,11 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                     onClick={() => {
                       if (selectedPlan) {
                         onSelectPlan(selectedPlan);
-                        onClose();
+                        handleClose();
                       }
                     }}
                     disabled={!selectedPlan}
-                    className={`px-6 py-3 rounded-xl transition-all duration-300 font-medium ${
+                    className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${
                       selectedPlan
                         ? 'bg-pink-600 text-white hover:bg-pink-700'
                         : 'bg-gray-400 text-gray-200 cursor-not-allowed'
@@ -618,7 +655,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                       setCustomTasks([]);
                       setEditingTask(null);
                     }}
-                    className={`px-6 py-3 rounded-xl transition-all duration-300 font-medium ${
+                    className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${
                       theme === 'dark' 
                         ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' 
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
@@ -630,7 +667,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                   <button
                     onClick={confirmCustomPlan}
                     disabled={customTasks.length === 0}
-                    className={`px-6 py-3 rounded-xl transition-all duration-300 font-medium ${
+                    className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${
                       customTasks.length > 0
                         ? 'bg-green-600 text-white hover:bg-green-700'
                         : 'bg-gray-400 text-gray-200 cursor-not-allowed'
