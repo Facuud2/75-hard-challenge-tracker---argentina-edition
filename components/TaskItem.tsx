@@ -13,14 +13,14 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, theme }) => {
   return (
     <button 
       onClick={() => onToggle(task.id)}
-      className={`max-w-full w-full flex items-center gap-3 p-3 sm:gap-4 sm:p-4 rounded-2xl text-left transition-all duration-200 active:scale-[0.98] group ${
+      className={`max-w-full w-full min-w-0 box-border overflow-hidden flex items-center gap-3 p-3 sm:gap-4 sm:p-4 rounded-2xl text-left transition-all duration-200 active:scale-[0.98] group ${
         task.completed 
         ? (theme === 'dark' ? 'bg-pink-950/30 opacity-60 border border-pink-500/10' : 'bg-pink-100/60 opacity-80 border border-pink-200/30')
         : (theme === 'dark' ? 'bg-pink-950/20 hover:bg-pink-950/40 border border-pink-500/20' : 'bg-pink-50/40 hover:bg-pink-100/60 border border-pink-200/50')
       }`}
     >
       {/* Icon Container */}
-      <div className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors duration-300 ${
+  <div className={`flex-shrink-0 shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors duration-300 ${
         task.completed 
           ? (theme === 'dark' ? 'bg-pink-900/50 text-pink-600' : 'bg-pink-200/50 text-pink-600')
           : (theme === 'dark' ? 'bg-pink-900/30 text-pink-400 group-hover:bg-pink-900/50' : 'bg-pink-100/40 text-pink-500 group-hover:bg-pink-200/60')
@@ -29,7 +29,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, theme }) => {
       </div>
       
       {/* Text Content */}
-      <div className="flex-1 min-w-0">
+  <div className="flex-1 min-w-0 overflow-hidden">
         <h3 className={`text-base font-bold leading-tight transition-colors break-words ${
           task.completed 
             ? (theme === 'dark' ? 'text-pink-600 line-through' : 'text-pink-700 line-through')
@@ -47,7 +47,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, theme }) => {
       </div>
 
       {/* Checkbox UI */}
-      <div className={`shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+  <div className={`flex-shrink-0 shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
         task.completed 
           ? 'bg-pink-600 border-pink-600' 
           : (theme === 'dark' ? 'border-pink-500/50 group-hover:border-pink-400 bg-transparent' : 'border-pink-300/50 group-hover:border-pink-400 bg-transparent')
