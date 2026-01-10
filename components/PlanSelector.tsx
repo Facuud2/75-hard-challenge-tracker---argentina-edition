@@ -27,7 +27,7 @@ const CHALLENGE_PLANS: ChallengePlan[] = [
     id: 'soft',
     name: 'Soft Challenge',
     description: 'Versión suave para principiantes o recuperación',
-    duration: 30,
+    duration: 75,
     tasks: [
       { id: 'diet', label: 'Dieta Flexible', description: 'Comida saludable, 1 comida trampa por semana', icon: 'utensils' },
       { id: 'workout', label: 'Ejercicio Diario', description: '30 minutos de actividad física', icon: 'dumbbell' },
@@ -40,7 +40,7 @@ const CHALLENGE_PLANS: ChallengePlan[] = [
     id: 'medium',
     name: 'Medium Challenge',
     description: 'Versión intermedia con desafíos balanceados',
-    duration: 45,
+    duration: 75,
     tasks: [
       { id: 'diet', label: 'Dieta Controlada', description: 'Sin comidas trampa, alcohol limitado', icon: 'utensils' },
       { id: 'workout-1', label: 'Primer Entrenamiento', description: '45 minutos de actividad física', icon: 'dumbbell' },
@@ -70,7 +70,7 @@ const CHALLENGE_PLANS: ChallengePlan[] = [
     id: 'custom',
     name: 'Custom Challenge',
     description: 'Crea tu propio desafío personalizado',
-    duration: 60,
+    duration: 75,
     tasks: [
       { id: 'custom-diet', label: 'Dieta Personalizada', description: 'Define tus propias reglas alimenticias', icon: 'utensils' },
       { id: 'custom-workout', label: 'Ejercicio Personalizado', description: 'Establece tu rutina de entrenamiento', icon: 'dumbbell' },
@@ -88,6 +88,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [customTasks, setCustomTasks] = useState<string[]>([]);
   const [editingTask, setEditingTask] = useState<string | null>(null);
+  const [mobilePlanDetails, setMobilePlanDetails] = useState<ChallengePlan | null>(null);
   const [customTaskDefinitions, setCustomTaskDefinitions] = useState([
     { id: 'custom-diet', label: 'Dieta Personalizada', description: 'Define tus propias reglas alimenticias', icon: 'utensils' },
     { id: 'custom-workout', label: 'Ejercicio Personalizado', description: 'Establece tu rutina de entrenamiento', icon: 'dumbbell' },
@@ -122,8 +123,25 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
       setIsCustomizing(true);
       setSelectedPlan(plan);
     } else {
-      setSelectedPlan(plan);
+      // En móvil, mostrar popup de detalles
+      if (window.innerWidth < 768) {
+        setMobilePlanDetails(plan);
+      } else {
+        setSelectedPlan(plan);
+      }
     }
+  };
+
+  const handleMobilePlanConfirm = (plan: ChallengePlan) => {
+    setSelectedPlan(plan);
+    setMobilePlanDetails(null);
+    // Confirmar el plan y cerrar el modal como en desktop
+    onSelectPlan(plan);
+    handleClose();
+  };
+
+  const handleMobilePlanClose = () => {
+    setMobilePlanDetails(null);
   };
 
   const toggleCustomTask = (taskId: string) => {
@@ -175,10 +193,145 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
     setIsCustomizing(false);
     setCustomTasks([]);
     setEditingTask(null);
+    setMobilePlanDetails(null);
     onClose();
   };
 
   if (!isOpen) return null;
+
+  // Mobile Plan Details Popup
+  const MobilePlanDetailsPopup = () => {
+    if (!mobilePlanDetails) return null;
+
+    return (
+      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          onClick={handleMobilePlanClose}
+        />
+        
+        {/* Popup Content */}
+        <div className={`relative w-full max-w-sm max-h-[80vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 ${
+          theme === 'dark'
+            ? 'bg-gradient-to-br from-pink-950/95 to-black/95 border-pink-500/20'
+            : 'bg-gradient-to-br from-pink-50/95 to-white/95 border-pink-200'
+        }`}>
+          {/* Background Glow */}
+          <div className={`absolute -top-20 -right-20 w-64 h-64 blur-[80px] rounded-full pointer-events-none transition-opacity duration-300 ${
+            theme === 'dark'
+              ? 'bg-gradient-to-br from-pink-400/20 to-pink-600/10'
+              : 'bg-gradient-to-br from-pink-200/15 to-pink-300/10'
+          }`} />
+
+          <div className="relative z-10 h-full flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-pink-500/20">
+              <div className="flex items-center gap-2">
+                <Icon name="target" className="w-5 h-5 text-pink-500" />
+                <h3 className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  {mobilePlanDetails.name}
+                </h3>
+              </div>
+              
+              <button
+                onClick={handleMobilePlanClose}
+                className={`p-2 rounded-xl transition-all duration-300 ${
+                  theme === 'dark' 
+                    ? 'hover:bg-pink-950/50 text-pink-300 hover:text-pink-200 border border-pink-500/20' 
+                    : 'hover:bg-pink-100 text-pink-600 hover:text-pink-500 border border-pink-200'
+                }`}
+              >
+                <Icon name="x" className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-4 max-h-[calc(80vh-160px)]">
+              <div className="space-y-4">
+                {/* Plan Description */}
+                <div className={`p-3 rounded-xl ${
+                  theme === 'dark' 
+                    ? 'bg-pink-950/20 border-pink-500/20' 
+                    : 'bg-pink-50/20 border-pink-200'
+                }`}>
+                  <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {mobilePlanDetails.description}
+                  </p>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className={`text-sm font-medium ${theme === 'dark' ? 'text-pink-300' : 'text-pink-700'}`}>
+                      Duración
+                    </span>
+                    <span className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                      {mobilePlanDetails.duration} días
+                    </span>
+                  </div>
+                </div>
+
+                {/* Tasks */}
+                <div className="space-y-3">
+                  <h4 className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                    Tareas Diarias ({mobilePlanDetails.tasks.length})
+                  </h4>
+                  <div className="space-y-2">
+                    {mobilePlanDetails.tasks.map((task) => (
+                      <div key={task.id} className={`p-2 rounded-xl border ${
+                        theme === 'dark'
+                          ? 'border-gray-600 bg-gray-800/50'
+                          : 'border-gray-300 bg-gray-50/50'
+                      }`}>
+                        <div className="flex items-start gap-2">
+                          <Icon 
+                            name={task.icon} 
+                            className={`w-4 h-4 mt-0.5 ${
+                              theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                            }`} 
+                          />
+                          <div className="flex-1">
+                            <p className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                              {task.label}
+                            </p>
+                            <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {task.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 p-4 border-t border-pink-500/20">
+              <button
+                onClick={handleMobilePlanClose}
+                className={`flex-1 px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
+                  theme === 'dark' 
+                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                }`}
+              >
+                Cancelar
+              </button>
+              
+              <button
+                onClick={() => handleMobilePlanConfirm(mobilePlanDetails)}
+                className={`flex-1 px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
+                  theme === 'dark'
+                    ? 'bg-pink-600 text-white hover:bg-pink-700'
+                    : 'bg-pink-500 text-white hover:bg-pink-600'
+                }`}
+              >
+                Seleccionar Plan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const getPlanColor = (color: string) => {
     switch (color) {
@@ -221,7 +374,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[50] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -534,8 +687,8 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
               </div>
             )}
 
-            {/* Selected Plan Details */}
-            {selectedPlan && !isCustomizing && (
+            {/* Selected Plan Details - Desktop Only */}
+            {selectedPlan && !isCustomizing && window.innerWidth >= 768 && (
               <div className="mt-4 space-y-6">
                 <div className="text-center">
                   <h3 className={`text-xl sm:text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
@@ -681,6 +834,9 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
           </div>
         </div>
       </div>
+      
+      {/* Mobile Plan Details Popup */}
+      <MobilePlanDetailsPopup />
     </div>
   );
 };
