@@ -204,7 +204,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
     if (!mobilePlanDetails) return null;
 
     return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
         {/* Backdrop */}
         <div 
           className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -374,7 +374,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
   };
 
   return (
-    <div className="fixed inset-0 z-[50] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -382,7 +382,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
       />
       
       {/* Modal Content */}
-      <div className={`relative w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 ${
+      <div className={`relative w-full max-w-6xl max-h-[calc(100vh-140px)] sm:max-h-[90vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 ${
         theme === 'dark'
           ? 'bg-gradient-to-br from-pink-950/95 to-black/95 border-pink-500/20'
           : 'bg-gradient-to-br from-pink-50/95 to-white/95 border-pink-200'
@@ -419,7 +419,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-h-[calc(90vh-160px)] scrollbar-thin scrollbar-thumb-pink-500/20 scrollbar-track-transparent hover:scrollbar-thumb-pink-500/40">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 pb-28 sm:pb-6 max-h-[calc(90vh-160px)] scrollbar-thin scrollbar-thumb-pink-500/20 scrollbar-track-transparent hover:scrollbar-thumb-pink-500/40">
             {!isCustomizing ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 {CHALLENGE_PLANS.map((plan) => (
@@ -487,23 +487,23 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
               </div>
             ) : (
               /* Custom Task Selection View */
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="text-center">
-                  <h3 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <h3 className={`text-lg sm:text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                     Personaliza tu Desafío
                   </h3>
-                  <p className={`text-sm mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <p className={`text-xs sm:text-sm mt-1 sm:mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                     Selecciona y edita las características que quieres incluir en tu plan personalizado
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
                   {customTaskDefinitions.map((task) => (
                     <div key={task.id} className="relative">
                       {/* Task Card */}
                       <div
                         onClick={() => toggleCustomTask(task.id)}
-                        className={`relative rounded-2xl border-2 p-4 cursor-pointer transition-all duration-300 ${
+                        className={`relative rounded-2xl border-2 p-3 sm:p-4 cursor-pointer transition-all duration-300 ${
                           customTasks.includes(task.id)
                             ? 'border-green-500 bg-green-500/10'
                             : theme === 'dark'
@@ -521,11 +521,11 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                         )}
 
                         {/* Task Content */}
-                        <div className="pr-20">
-                          <div className="flex items-start gap-3">
+                        <div className="pr-0 sm:pr-8">
+                          <div className="flex items-start gap-2 sm:gap-3">
                             <Icon 
                               name={task.icon} 
-                              className={`w-5 h-5 mt-0.5 ${
+                              className={`w-4 h-4 sm:w-5 sm:h-5 mt-0.5 ${
                                 customTasks.includes(task.id) 
                                   ? 'text-green-500' 
                                   : theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
@@ -533,7 +533,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                             />
                             <div className="flex-1">
                               {editingTask === task.id ? (
-                                <div className="space-y-2">
+                                <div className="space-y-1 sm:space-y-2">
                                   <input
                                     type="text"
                                     value={task.label}
@@ -606,8 +606,8 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                         </div>
                       </div>
 
-                      {/* Action Buttons - Left side of card, completely outside */}
-                      <div className="absolute -top-6 -left-2 flex gap-1">
+                      {/* Action Buttons (moved inside top-right to avoid overflow) */}
+                      <div className="absolute top-3 right-3 flex gap-2 z-10">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -681,6 +681,33 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                       }`}>
                         {selectedPlan?.duration} días
                       </div>
+                    </div>
+
+                    {/* Action buttons placed inside the summary so they're visible on mobile */}
+                    <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                      <button
+                        onClick={() => {
+                          setIsCustomizing(false);
+                          setSelectedPlan(null);
+                          setCustomTasks([]);
+                          setEditingTask(null);
+                        }}
+                        className={`w-full sm:w-auto px-3 py-2 rounded-xl transition-all duration-300 font-medium text-sm ${
+                          theme === 'dark' ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                        }`}
+                      >
+                        Cancelar
+                      </button>
+
+                      <button
+                        onClick={confirmCustomPlan}
+                        disabled={customTasks.length === 0}
+                        className={`w-full sm:w-auto px-3 py-2 rounded-xl transition-all duration-300 font-medium text-sm ${
+                          customTasks.length > 0 ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                        }`}
+                      >
+                        Confirmar Plan Personalizado
+                      </button>
                     </div>
                   </div>
                 )}
@@ -768,12 +795,12 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
               )}
             </div>
             
-            <div className="flex gap-3 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               {!isCustomizing ? (
                 <>
                   <button
                     onClick={handleClose}
-                    className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${
+                    className={`w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${
                       theme === 'dark' 
                         ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' 
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
@@ -790,7 +817,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                       }
                     }}
                     disabled={!selectedPlan}
-                    className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${
+                    className={`w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${
                       selectedPlan
                         ? 'bg-pink-600 text-white hover:bg-pink-700'
                         : 'bg-gray-400 text-gray-200 cursor-not-allowed'
@@ -801,33 +828,35 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                 </>
               ) : (
                 <>
-                  <button
-                    onClick={() => {
-                      setIsCustomizing(false);
-                      setSelectedPlan(null);
-                      setCustomTasks([]);
-                      setEditingTask(null);
-                    }}
-                    className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${
-                      theme === 'dark' 
-                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
-                    }`}
-                  >
-                    Atrás
-                  </button>
-                  
-                  <button
-                    onClick={confirmCustomPlan}
-                    disabled={customTasks.length === 0}
-                    className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${
-                      customTasks.length > 0
-                        ? 'bg-green-600 text-white hover:bg-green-700'
-                        : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                    }`}
-                  >
-                    Confirmar Plan Personalizado
-                  </button>
+                  <div className="hidden sm:flex gap-3">
+                    <button
+                      onClick={() => {
+                        setIsCustomizing(false);
+                        setSelectedPlan(null);
+                        setCustomTasks([]);
+                        setEditingTask(null);
+                      }}
+                      className={`px-3 sm:px-4 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium text-sm sm:text-base ${
+                        theme === 'dark' 
+                          ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' 
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                      }`}
+                    >
+                      Atrás
+                    </button>
+
+                    <button
+                      onClick={confirmCustomPlan}
+                      disabled={customTasks.length === 0}
+                      className={`px-3 sm:px-4 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium text-sm sm:text-base ${
+                        customTasks.length > 0
+                          ? 'bg-green-600 text-white hover:bg-green-700'
+                          : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                      }`}
+                    >
+                      Confirmar Plan Personalizado
+                    </button>
+                  </div>
                 </>
               )}
             </div>
