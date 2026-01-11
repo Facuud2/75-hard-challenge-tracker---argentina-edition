@@ -1,6 +1,5 @@
 import React from 'react';
-import { Trophy, Flame, Award, Gamepad2, MapPin, Star } from 'lucide-react';
-import { Icon } from '../Icons';
+import { Trophy, Flame, Award, Gamepad2, MapPin, Star, X } from 'lucide-react';
 
 interface ProfileProps {
   theme?: 'dark' | 'light';
@@ -111,8 +110,8 @@ const USER_DATA: UserProfile = {
 // Pequeñas piezas reutilizables. En un proyecto real, irían en archivos separados.
 
 const StatCard = ({ label, value, unit, theme = 'dark' }: { label: string; value: string | number; unit?: string; theme?: 'dark' | 'light' }) => (
-  <div className={`p-3 rounded border backdrop-blur-sm flex flex-col justify-between h-24 hover:opacity-95 transition-colors ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700' : 'bg-pink-50 border-pink-200'}`}>
-    <div className={`text-3xl font-light tracking-wide ${theme === 'dark' ? 'text-white' : 'text-pink-700'}`}>
+  <div className={`p-2 sm:p-3 rounded border backdrop-blur-sm flex flex-col justify-between h-20 sm:h-24 hover:opacity-95 transition-colors ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700' : 'bg-pink-50 border-pink-200'}`}>
+    <div className={`text-2xl sm:text-3xl font-light tracking-wide ${theme === 'dark' ? 'text-white' : 'text-pink-700'}`}>
       {value}<span className={`text-sm ml-1 ${theme === 'dark' ? 'text-gray-400' : 'text-pink-600'}`}>{unit}</span>
     </div>
     <div className={`text-xs uppercase tracking-wider font-semibold px-2 py-1 w-fit rounded ${theme === 'dark' ? 'text-gray-400 bg-gray-900/40' : 'text-pink-600 bg-pink-50/80 border border-pink-100'}`}>
@@ -150,29 +149,29 @@ const ActivityRow = ({
   activity: ActivityLog 
 } & React.HTMLAttributes<HTMLDivElement>) => (
   <div 
-    className="bg-gray-800/40 p-3 rounded-lg flex gap-4 border border-gray-700/50 hover:bg-gray-800 transition-all group"
+    className="bg-gray-800/40 p-2 sm:p-3 rounded-lg flex flex-col sm:flex-row gap-2 sm:gap-4 border border-gray-700/50 hover:bg-gray-800 transition-all group"
     {...props}
   >
     {/* Imagen tipo Banner de juego */}
-    <div className="w-48 h-24 flex-shrink-0 rounded overflow-hidden relative">
+    <div className="w-full sm:w-48 h-20 sm:h-24 flex-shrink-0 rounded overflow-hidden relative">
       <img src={activity.imageUrl} alt={activity.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
     </div>
     
     <div className="flex-1 flex flex-col justify-between py-1">
       <div>
-        <h3 className="text-white font-medium text-lg leading-tight">{activity.title}</h3>
-        <p className="text-gray-400 text-sm">{activity.description}</p>
+        <h3 className="text-white font-medium text-sm sm:text-lg leading-tight">{activity.title}</h3>
+        <p className="text-gray-400 text-xs sm:text-sm">{activity.description}</p>
       </div>
       
-      <div className="space-y-2">
-        <div className="flex justify-between text-xs text-gray-500">
+      <div className="space-y-1 sm:space-y-2">
+        <div className="flex flex-col sm:flex-row sm:justify-between text-xs text-gray-500 gap-1">
           <span>Achievements Progress {activity.achievementsUnlocked} of {activity.totalAchievements}</span>
           <div className="flex gap-2">
-            <span>{activity.hoursSpent} hrs on record</span>
-            <span>last played on {activity.lastActive}</span>
+            <span>{activity.hoursSpent} hrs</span>
+            <span>last: {activity.lastActive}</span>
           </div>
         </div>
-        <div className="w-full bg-gray-700/50 h-2 rounded-full overflow-hidden">
+        <div className="w-full bg-gray-700/50 h-1.5 sm:h-2 rounded-full overflow-hidden">
           <div 
             className="bg-gradient-to-r from-pink-500 to-pink-400 h-full" 
             style={{ width: `${activity.progress}%` }}
@@ -191,8 +190,8 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
   const { username, handle, stats, activities, badges, location, status } = USER_DATA;
 
   const rootClass = isModal
-    ? `w-full h-full p-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'}`
-    : `min-h-screen p-4 md:p-8 flex justify-center ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'}`;
+    ? `w-full h-full p-2 sm:p-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'}`
+    : `min-h-screen p-2 sm:p-4 md:p-8 flex justify-center ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'}`;
 
   const cardBg = theme === 'dark'
     ? 'bg-gradient-to-br from-pink-950/90 to-black/90 border-pink-500/20'
@@ -201,75 +200,77 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
   return (
     <div className={rootClass}>
       {/* Main Content Wrapper - Limit width similar to Steam's layout */}
-      <div className={`w-full ${isModal ? 'max-w-4xl mx-auto h-[90vh] overflow-auto' : 'max-w-5xl'} ${cardBg} backdrop-blur-md rounded-lg overflow-hidden shadow-2xl relative`}> 
+      <div className={`w-full ${isModal ? 'max-w-4xl mx-auto h-[90vh] overflow-y-auto' : 'max-w-5xl'} ${cardBg} backdrop-blur-md rounded-lg shadow-2xl relative`}> 
         
         {/* Decorative Gradient Top */}
         <div className="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-[#2a475e] to-transparent opacity-50 pointer-events-none" />
 
-        <div className="relative z-10 p-6 flex flex-col md:flex-row gap-6">
+        <div className="relative z-10 p-3 sm:p-6 flex flex-col gap-4 sm:gap-6">
 
           {/* Close button for modal mode */}
           {isModal && onClose && (
             <button
               onClick={onClose}
               aria-label="Cerrar perfil"
-              className={`absolute top-4 right-4 p-2 rounded-lg transition-colors ${theme === 'dark' ? 'bg-black/40 text-pink-300 hover:bg-black/30' : 'bg-white/60 text-pink-600 hover:bg-white/70'}`}>
-              <Icon name="x" className="w-4 h-4" />
+              className={`fixed top-4 right-4 z-50 p-2 rounded-lg transition-colors ${theme === 'dark' ? 'bg-black/40 text-pink-300 hover:bg-black/30' : 'bg-white/60 text-pink-600 hover:bg-white/70'}`}>
+              <X className="w-4 h-4" />
             </button>
           )}
           
           {/* ================= LEFT COLUMN (Avatar & Info) ================= */}
-          <div className="flex-1">
+          <div className="flex-1 space-y-4 sm:space-y-6">
             
             {/* Header Profile Info */}
-            <div className="flex gap-4 mb-8">
-              <div className="relative">
-                <div className="w-32 h-32 border-2 border-[#5c7e10] p-1 bg-gradient-to-b from-[#5c7e10] to-transparent">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-8">
+              <div className="relative mx-auto sm:mx-0">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 border-2 border-[#5c7e10] p-1 bg-gradient-to-b from-[#5c7e10] to-transparent">
                   <img 
                     src={USER_DATA.avatarUrl} 
                     alt={`Avatar de ${username}`} 
                     className="w-full h-full object-cover bg-black" 
                     loading="lazy"
-                    width={128}
-                    height={128}
+                    width={96}
+                    height={96}
                   />
                 </div>
                 {/* Status indicator */}
                 <span 
-                  className={`absolute bottom-2 right-2 w-4 h-4 rounded-full border-2 border-[#171a21] ${status === 'online' ? 'bg-blue-400' : 'bg-gray-500'}`}
+                  className={`absolute bottom-2 right-2 w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-[#171a21] ${status === 'online' ? 'bg-blue-400' : 'bg-gray-500'}`}
                   title={status === 'online' ? 'En línea' : 'Desconectado'}
                   aria-label={status === 'online' ? 'En línea' : 'Desconectado'}
                 ></span>
               </div>
               
-                <div className="flex flex-col justify-start pt-2">
-                <h1 className={`text-3xl font-bold tracking-tight font-oswald ${theme === 'dark' ? 'text-white' : 'text-pink-700'}`}>{username}</h1>
-                <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
+              <div className="flex flex-col justify-start pt-0 sm:pt-2 text-center sm:text-left">
+                <h1 className="text-2xl sm:text-3xl text-white font-bold tracking-tight">{username}</h1>
+                <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-gray-400 mb-2">
                   <span>{handle}</span>
                   <MapPin size={14} />
                   <span>{location}</span>
                 </div>
-                <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-pink-600'} text-sm max-w-md mb-4 italic`}>"{USER_DATA.bio}"</p>
-                <a href="#" className={`text-xs ${theme === 'dark' ? 'text-blue-400 hover:text-white' : 'text-pink-600 hover:text-pink-700'} transition-colors`}>View more info</a>
+                <p className="text-gray-400 text-sm max-w-md mb-3 sm:mb-4 italic text-center sm:text-left">"{USER_DATA.bio}"</p>
+                <div className="flex justify-center sm:justify-start">
+                  <a href="#" className="text-xs text-blue-400 hover:text-white transition-colors">View more info</a>
+                </div>
               </div>
             </div>
 
             {/* Stats Row (Days, Weight, Streak) */}
-            <section className="mb-8">
+            <section className="mb-4 sm:mb-8">
               <div className="flex items-center justify-between mb-2">
-                <h2 className={`${theme === 'dark' ? 'text-white' : 'text-pink-700'} text-lg font-light`}>Estadísticas</h2>
+                <h2 className="text-white text-base sm:text-lg font-light">Estadísticas</h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <StatCard label="Días Actuales" value={stats.currentDay} theme={theme} />
-                <StatCard label="Mejor Peso" value={stats.bestWeight} unit="kg" theme={theme} />
-                <StatCard label="Mayor Racha" value={stats.longestStreak} unit="días" theme={theme} />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+                <StatCard label="Días Actuales" value={stats.currentDay} />
+                <StatCard label="Mejor Peso" value={stats.bestWeight} unit="kg" />
+                <StatCard label="Mayor Racha" value={stats.longestStreak} unit="días" />
               </div>
             </section>
 
             {/* Featured Showcase (Simulado como Featured Games) */}
-            <section className="mb-8">
-              <h2 className={`${theme === 'dark' ? 'text-gray-400' : 'text-pink-600'} text-sm mb-2 font-medium`}>FEATURED CHALLENGES</h2>
-              <div className="grid grid-cols-4 gap-2">
+            <section className="mb-4 sm:mb-8">
+              <h2 className="text-gray-400 text-xs sm:text-sm mb-2 font-medium">FEATURED CHALLENGES</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
                  {[1,2,3,4].map((i) => (
                    <button 
                      key={i} 
@@ -277,7 +278,7 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
                      aria-label={`Desafío destacado ${i}`}
                    >
                      <div className="absolute inset-0 flex items-center justify-center text-gray-600 group-hover:text-gray-300">
-                        <Gamepad2 size={24} aria-hidden="true" />
+                        <Gamepad2 size={16} sm:size={24} aria-hidden="true" />
                      </div>
                    </button>
                  ))}
@@ -287,10 +288,10 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
             {/* Recent Activity */}
             <section>
               <div className="flex justify-between items-end mb-2">
-                <h2 className={`${theme === 'dark' ? 'text-white' : 'text-pink-700'} text-lg`}>Actividad Reciente</h2>
+                <h2 className={`${theme === 'dark' ? 'text-white' : 'text-pink-700'} text-base sm:text-lg`}>Actividad Reciente</h2>
                 <span className={`${theme === 'dark' ? 'text-xs text-gray-500' : 'text-xs text-pink-600'}`}>4.4 hours past 2 weeks</span>
               </div>
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2 sm:gap-3">
                 {activities.map(activity => (
                   <ActivityRow key={activity.id} activity={activity} />
                 ))}
@@ -300,14 +301,14 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
           </div>
 
           {/* ================= RIGHT COLUMN (Sidebar) ================= */}
-          <aside className="w-full md:w-72 flex flex-col gap-6">
+          <aside className="w-full md:w-72 flex flex-col gap-4 sm:gap-6">
             
-            {/* Level Badge Box */}
-            <div className={`${theme === 'dark' ? 'bg-[#12151a]/50' : 'bg-pink-50/80'} p-6 rounded-lg`}> 
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
-                <h3 className={`${theme === 'dark' ? 'text-xl text-white' : 'text-xl text-pink-700'} font-light mb-2 sm:mb-0`}>Level <span className="font-bold">{stats.level}</span></h3>
+            {/* Level Badge Box - Siempre primero en móvil */}
+            <div className={`${theme === 'dark' ? 'bg-[#12151a]/50' : 'bg-pink-50/80'} p-4 sm:p-6 rounded-lg order-1`}> 
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4">
+                <h3 className={`${theme === 'dark' ? 'text-lg sm:text-xl text-white' : 'text-lg sm:text-xl text-pink-700'} font-light mb-2 sm:mb-0`}>Level <span className="font-bold">{stats.level}</span></h3>
               </div>
-              <div className="mb-4">
+              <div className="mb-3 sm:mb-4">
                 <LevelBadge level={stats.level} xp={stats.xp} nextXp={stats.nextLevelXp} theme={theme} />
               </div>
               <button className={`${theme === 'dark' ? 'text-xs bg-[#21262d] hover:bg-[#2a3038] text-white py-2 px-4 rounded border border-gray-600' : 'text-xs bg-pink-100 text-pink-700 hover:bg-pink-200 py-2 px-4 rounded border border-pink-200'} w-fit transition-colors`}>
@@ -315,8 +316,8 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
               </button>
             </div>
 
-            {/* Online Status Section */}
-            <div className={`${theme === 'dark' ? 'bg-[#12151a]/30 p-4 rounded border border-gray-800' : 'bg-pink-50 p-4 rounded border border-pink-200'}`}>
+            {/* Online Status Section - Segundo en móvil */}
+            <div className={`${theme === 'dark' ? 'bg-[#12151a]/30 p-4 rounded border border-gray-800' : 'bg-pink-50 p-4 rounded border border-pink-200'} order-2`}>
               <h3 className={`${theme === 'dark' ? 'text-blue-400' : 'text-pink-600'} text-lg mb-1`}>Currently Online</h3>
               
               <div className="flex gap-2 mb-6">
@@ -352,8 +353,8 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
               </nav>
             </div>
 
-            {/* Groups / Community */}
-            <div>
+            {/* Groups / Community - Tercero en móvil */}
+            <div className="order-3">
                <h3 className="text-gray-400 mb-2 font-medium">GROUPS</h3>
                <div className="flex items-center gap-2 text-sm text-gray-300 group cursor-pointer">
                  <div className="w-8 h-8 bg-blue-900 rounded flex items-center justify-center">🇦🇷</div>
