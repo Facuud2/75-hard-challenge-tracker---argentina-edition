@@ -25,6 +25,8 @@ export interface DailyLog {
 	tasks: Record<string, { completed: boolean; value?: any; notes?: string }>;
 	notes?: string;
 	photos?: ProgressPhoto[];
+	// Optional weight recorded for the day (kg). Null/undefined means not recorded yet.
+	weight?: number | null;
 }
 
 export interface ModuleCState {
