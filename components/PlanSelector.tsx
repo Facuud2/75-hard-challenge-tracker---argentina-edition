@@ -29,10 +29,10 @@ const CHALLENGE_PLANS: ChallengePlan[] = [
     description: 'Versión suave para principiantes o recuperación',
     duration: 75,
     tasks: [
-      { id: 'diet', label: 'Dieta Flexible', description: 'Comida saludable, 1 comida trampa por semana', icon: 'utensils' },
-      { id: 'workout', label: 'Ejercicio Diario', description: '30 minutos de actividad física', icon: 'dumbbell' },
-      { id: 'water', label: 'Hidratación', description: '2 litros de agua al día', icon: 'droplet' },
-      { id: 'reading', label: 'Lectura', description: '5 páginas de un libro', icon: 'book-open' },
+      { id: 'diet', label: 'Comer saludable (alcohol social)', description: 'Comer saludable; alcohol únicamente en ocasiones sociales', icon: 'utensils' },
+      { id: 'workout', label: 'Entrenamiento 45 min', description: '45 minutos de ejercicio diario, con 1 día de descanso por semana', icon: 'dumbbell' },
+      { id: 'water', label: 'Agua (1L)', description: 'Beber 3 litros de agua por día', icon: 'droplet' },
+      { id: 'reading', label: 'Lectura (10 págs)', description: 'Leer 10 páginas de un libro', icon: 'book-open' }
     ],
     color: 'blue'
   },
@@ -42,12 +42,11 @@ const CHALLENGE_PLANS: ChallengePlan[] = [
     description: 'Versión intermedia con desafíos balanceados',
     duration: 75,
     tasks: [
-      { id: 'diet', label: 'Dieta Controlada', description: 'Sin comidas trampa, alcohol limitado', icon: 'utensils' },
-      { id: 'workout-1', label: 'Primer Entrenamiento', description: '45 minutos de actividad física', icon: 'dumbbell' },
-      { id: 'workout-2', label: 'Segundo Entrenamiento', description: '30 minutos al aire libre', icon: 'cloud-sun' },
-      { id: 'water', label: 'Agua (2.5L)', description: '2.5 litros de agua al día', icon: 'droplet' },
-      { id: 'reading', label: 'Lectura (10 págs)', description: '10 páginas de no ficción', icon: 'book-open' },
-      { id: 'photo', label: 'Foto de Progreso', description: 'Foto cada 3 días', icon: 'camera' },
+      { id: 'workout', label: 'Entrenamiento 45 min', description: '45 minutos de ejercicio todos los días', icon: 'dumbbell' },
+      { id: 'diet', label: 'Dieta Saludable', description: 'Seguir una dieta saludable', icon: 'utensils' },
+      { id: 'water', label: 'Agua (3L)', description: 'Beber 5 litros de agua por día', icon: 'droplet' },
+      { id: 'reading', label: 'Lectura (10 págs / audiolibro)', description: 'Leer 10 páginas o escuchar 10 páginas en audiolibro', icon: 'book-open' },
+      { id: 'photo', label: 'Fotos semanales', description: 'Fotos de progreso 3-4 veces por semana', icon: 'camera' }
     ],
     color: 'purple'
   },
@@ -60,7 +59,7 @@ const CHALLENGE_PLANS: ChallengePlan[] = [
       { id: 'diet', label: 'Dieta Estricta', description: 'Sin comidas trampa ni alcohol', icon: 'utensils' },
       { id: 'workout-1', label: 'Primer Entrenamiento', description: '45 minutos de actividad física', icon: 'dumbbell' },
       { id: 'workout-2', label: 'Segundo Entrenamiento', description: '45 minutos al aire libre (o 8000 pasos)', icon: 'cloud-sun' },
-      { id: 'water', label: 'Agua (3.7L)', description: 'Un galón de agua al día', icon: 'droplet' },
+      { id: 'water', label: 'Agua (7 Galones)', description: 'Tres galón de agua al día', icon: 'droplet' },
       { id: 'reading', label: 'Lectura (10 págs)', description: '10 páginas de no ficción', icon: 'book-open' },
       { id: 'photo', label: 'Foto de Progreso', description: 'Foto diaria de progreso', icon: 'camera' },
     ],

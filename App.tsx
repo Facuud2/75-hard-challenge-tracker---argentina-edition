@@ -21,6 +21,17 @@ const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedModalDate, setSelectedModalDate] = useState<string | null>(null);
   const [isPlanSelectorOpen, setIsPlanSelectorOpen] = useState(false);
+  const SELECTED_PLAN_KEY = '75hard_selected_plan';
+  const [activePlanId, setActivePlanId] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem(SELECTED_PLAN_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.id) return parsed.id;
+      }
+    } catch (e) { /* ignore */ }
+    return 'hard';
+  });
   const [state, setState] = useState<ChallengeState>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     const todayStr = getArgentinaDateString();
@@ -161,6 +172,14 @@ const App: React.FC = () => {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newState));
       return newState;
     });
+    // persist active plan id and update header
+    try {
+      const planId = plan?.id || 'custom';
+      setActivePlanId(planId);
+      localStorage.setItem(SELECTED_PLAN_KEY, JSON.stringify({ id: planId }));
+    } catch (e) {
+      // ignore
+    }
   };
 
   const todayData = useMemo(() => 
@@ -193,13 +212,18 @@ const App: React.FC = () => {
           : 'bg-white/80 border-pink-200/50'
       }`}>
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
             <Icon name="flame" className={`w-5 h-5 fill-current transition-colors duration-300 ${
               theme === 'dark' ? 'text-pink-400' : 'text-pink-500'
             }`} />
             <h1 className={`text-lg font-oswald font-bold tracking-tight italic transition-colors duration-300 ${
               theme === 'dark' ? 'text-white' : 'text-gray-900'
-            }`}>75 HARD</h1>
+            }`}>
+              <span className="mr-2">75 DAYS</span>
+              <span className={`${theme === 'dark' ? 'text-pink-400' : 'text-pink-600'} font-oswald font-bold uppercase`}>
+                {activePlanId ? activePlanId.toUpperCase() : 'HARD'}
+              </span>
+            </h1>
           </div>
           <div className="flex items-center gap-3">
              <div className="hidden sm:block">
