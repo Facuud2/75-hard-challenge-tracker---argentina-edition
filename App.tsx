@@ -13,6 +13,7 @@ import DayModal from './components/moduleC/DayModal';
 import PlanSelector from './components/PlanSelector';
 import { CHALLENGE_PLANS } from './components/PlanSelector';
 import Achievements from './components/Achievements';
+import Profile from './components/Profile/Profile';
 import { useAchievementsSimple, ACHIEVEMENTS } from './hooks/useAchievementsSimple';
 import { useModuleC } from './hooks/useModuleC';
 
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   const [selectedModalDate, setSelectedModalDate] = useState<string | null>(null);
   const [isPlanSelectorOpen, setIsPlanSelectorOpen] = useState(false);
   const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const SELECTED_PLAN_KEY = '75hard_selected_plan';
   const [activePlanId, setActivePlanId] = useState<string>(() => {
     try {
@@ -96,6 +98,17 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
   }, [state]);
+
+  // Lock body scroll when profile modal is open
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (isProfileOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+    return;
+  }, [isProfileOpen]);
 
   // Sync day change every 10 seconds to handle midnight rollover
   useEffect(() => {
@@ -517,49 +530,65 @@ const App: React.FC = () => {
           ? 'bg-black/80 border-pink-500/20'
           : 'bg-white/80 border-pink-200/50'
       }`}>
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-            <Icon name="flame" className={`w-5 h-5 fill-current transition-colors duration-300 ${
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
+            <div className="flex items-center gap-1 sm:gap-2">
+            <Icon name="flame" className={`w-4 h-4 sm:w-5 sm:h-5 fill-current transition-colors duration-300 ${
               theme === 'dark' ? 'text-pink-400' : 'text-pink-500'
             }`} />
-            <h1 className={`text-lg font-oswald font-bold tracking-tight italic transition-colors duration-300 ${
+            <h1 className={`text-sm sm:text-lg font-oswald font-bold tracking-tight italic transition-colors duration-300 ${
               theme === 'dark' ? 'text-white' : 'text-gray-900'
             }`}>
-              <span className="mr-2">75 DAYS</span>
-              <span className={`${theme === 'dark' ? 'text-pink-400' : 'text-pink-600'} font-oswald font-bold uppercase`}>
+              <span className="mr-1 sm:mr-2">75 DAYS</span>
+              <span className={`${theme === 'dark' ? 'text-pink-400' : 'text-pink-600'} font-oswald font-bold uppercase text-xs sm:text-sm`}>
                 {activePlanId ? activePlanId.toUpperCase() : 'HARD'}
               </span>
             </h1>
           </div>
-          <div className="flex items-center gap-3">
-             <div className="hidden sm:block">
+          <div className="flex items-center gap-2 sm:gap-3">
+             <div className="hidden lg:block">
                 <Timer theme={theme} />
              </div>
              {/* Debug Button - Plan Selector */}
              <button
                onClick={() => setIsPlanSelectorOpen(true)}
-               className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
+               className={`px-3 py-2 sm:px-3 sm:py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
                  theme === 'dark'
                    ? 'bg-pink-600/20 text-pink-300 hover:bg-pink-600/30 border border-pink-500/30'
                    : 'bg-pink-100 text-pink-600 hover:bg-pink-200 border border-pink-300'
                }`}
+               title="Planes"
              >
-               <Icon name="target" className="w-4 h-4" />
-               <span className="ml-1">Planes</span>
+               <Icon name="target" className="w-4 h-4 sm:w-4 sm:h-4" />
+               <span className="hidden sm:inline ml-1">Planes</span>
              </button>
              
              {/* Achievements Button */}
              <button
                onClick={() => setIsAchievementsOpen(true)}
-               className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
+               className={`px-3 py-2 sm:px-3 sm:py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
                  theme === 'dark'
                    ? 'bg-purple-600/20 text-purple-300 hover:bg-purple-600/30 border border-purple-500/30'
                    : 'bg-purple-100 text-purple-600 hover:bg-purple-200 border border-purple-300'
                }`}
+               title="Logros"
              >
-               <Icon name="trophy" className="w-4 h-4" />
-               <span className="ml-1">Logros</span>
+               <Icon name="trophy" className="w-4 h-4 sm:w-4 sm:h-4" />
+               <span className="hidden sm:inline ml-1">Logros</span>
              </button>
+             {/* Profile Button */}
+             <button
+               onClick={() => setIsProfileOpen(true)}
+               title="Ver Perfil"
+               className={`px-3 py-2 sm:px-3 sm:py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
+                 theme === 'dark'
+                   ? 'bg-slate-800/20 text-slate-200 hover:bg-slate-800/30 border border-slate-700/30'
+                   : 'bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-200'
+               }`}
+             >
+               <Icon name="user" className="w-4 h-4 sm:w-4 sm:h-4" />
+               <span className="hidden sm:inline ml-1">Perfil</span>
+             </button>
+
              <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
         </div>
@@ -753,6 +782,16 @@ const App: React.FC = () => {
             achievements: [] // TODO: Load from localStorage
           }}
         />
+
+        {/* Profile Modal (renders Profile inside a centered modal card) */}
+        {isProfileOpen && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsProfileOpen(false)} />
+            <div className="relative w-full max-w-4xl h-[90vh] max-h-[90vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300">
+              <Profile isModal theme={theme} onClose={() => setIsProfileOpen(false)} />
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Mobile Bottom Bar (Optional, keeps mobile app feel) */}
