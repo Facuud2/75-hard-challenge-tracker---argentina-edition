@@ -52,13 +52,29 @@ export const useModuleC = () => {
 
   const saveDailyLog = useCallback((log: DailyLog) => {
     setState(prev => {
-      const newState = {
+      // Merge any existing evidence photos for this date into the daily log
+      const existingEvidencePhotos = prev.evidenceVault?.photos?.filter(p => p.date === log.date) || [];
+      const mergedPhotos = [
+        ...(log.photos || []),
+        ...existingEvidencePhotos.filter(ep => !(log.photos || []).some(lp => lp.id === ep.id))
+      ];
+
+      // Normalize weight: keep null or round to one decimal place
+      const normalizedWeight = log.weight == null ? null : Number(parseFloat(String(log.weight)).toFixed(1));
+
+      const newState: ModuleCState = {
         ...prev,
         dailyLogs: {
           ...prev.dailyLogs,
-          [log.date]: log
+          [log.date]: {
+            ...prev.dailyLogs[log.date],
+            ...log,
+            weight: normalizedWeight,
+            photos: mergedPhotos
+          }
         }
       };
+
       localStorage.setItem(MODULE_C_STORAGE_KEY, JSON.stringify(newState));
       return newState;
     });
@@ -66,13 +82,28 @@ export const useModuleC = () => {
 
   const uploadPhoto = useCallback((photo: ProgressPhoto) => {
     setState(prev => {
-      const newState = {
+      // Add photo to evidence vault
+      const updatedPhotos = [...(prev.evidenceVault.photos || []), photo];
+
+      // Also attach photo to the daily log for the same date
+  const existingLog = prev.dailyLogs[photo.date] || { date: photo.date, tasks: {}, notes: '', photos: [], weight: null };
+      const updatedLogPhotos = [...(existingLog.photos || []), photo];
+
+      const newState: ModuleCState = {
         ...prev,
         evidenceVault: {
           ...prev.evidenceVault,
-          photos: [...prev.evidenceVault.photos, photo]
+          photos: updatedPhotos
+        },
+        dailyLogs: {
+          ...prev.dailyLogs,
+          [photo.date]: {
+            ...existingLog,
+            photos: updatedLogPhotos
+          }
         }
       };
+
       localStorage.setItem(MODULE_C_STORAGE_KEY, JSON.stringify(newState));
       return newState;
     });
@@ -80,13 +111,27 @@ export const useModuleC = () => {
 
   const deletePhoto = useCallback((photoId: string) => {
     setState(prev => {
-      const newState = {
+      // find photo to delete to also remove from dailyLogs
+      const photoToDelete = prev.evidenceVault.photos.find(p => p.id === photoId);
+      const updatedEvidencePhotos = prev.evidenceVault.photos.filter(p => p.id !== photoId);
+
+      const newDailyLogs = { ...prev.dailyLogs };
+      if (photoToDelete && newDailyLogs[photoToDelete.date]) {
+        newDailyLogs[photoToDelete.date] = {
+          ...newDailyLogs[photoToDelete.date],
+          photos: (newDailyLogs[photoToDelete.date].photos || []).filter(p => p.id !== photoId)
+        };
+      }
+
+      const newState: ModuleCState = {
         ...prev,
         evidenceVault: {
           ...prev.evidenceVault,
-          photos: prev.evidenceVault.photos.filter(p => p.id !== photoId)
-        }
+          photos: updatedEvidencePhotos
+        },
+        dailyLogs: newDailyLogs
       };
+
       localStorage.setItem(MODULE_C_STORAGE_KEY, JSON.stringify(newState));
       return newState;
     });

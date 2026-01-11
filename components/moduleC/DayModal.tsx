@@ -26,6 +26,16 @@ const DayModal: React.FC<DayModalProps> = ({
   onPhotoUpload,
   onPhotoDelete
 }) => {
+  // lock body scroll when modal is open and ensure cleanup
+  React.useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (isOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+    return;
+  }, [isOpen]);
   const [logData, setLogData] = React.useState(() => {
     if (dailyLog) {
       return dailyLog;
@@ -42,7 +52,8 @@ const DayModal: React.FC<DayModalProps> = ({
         return acc;
       }, {} as DailyLog['tasks']),
       notes: '',
-      photos: []
+      photos: [],
+      weight: null
     };
   });
 
@@ -336,7 +347,7 @@ const DayModal: React.FC<DayModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -344,7 +355,7 @@ const DayModal: React.FC<DayModalProps> = ({
       />
       
       {/* Modal Content */}
-      <div className={`relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 ${
+      <div className={`relative w-full max-w-4xl h-[90vh] max-h-[90vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 ${
         theme === 'dark'
           ? 'bg-gradient-to-br from-pink-950/95 to-black/95 border-pink-500/20'
           : 'bg-gradient-to-br from-pink-50/95 to-white/95 border-pink-200'
@@ -386,15 +397,14 @@ const DayModal: React.FC<DayModalProps> = ({
           </div>
 
           {/* Content: simplified to notes + photo upload/gallery */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 pb-28">
             <div className="space-y-3">
               <h3 className={`text-lg font-semibold flex items-center gap-2 ${
                 theme === 'dark' ? 'text-white' : 'text-gray-900'
               }`}>
                 <Icon name="edit" className="w-5 h-5 text-pink-500" />
-                📝 Notas del Día
+                  📝 Notas del Día
               </h3>
-
               <textarea
                 placeholder="Escribe tus notas del día..."
                 value={logData.notes}
@@ -411,6 +421,74 @@ const DayModal: React.FC<DayModalProps> = ({
                     : 'bg-gray-50/50 border-gray-300 text-gray-900'
                 }`}
               />
+                {/* Weight block: two selectors (kilos 210->40 and décimas 0->9) visually separated by a dot */}
+                <div className={`p-4 sm:p-6 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+                  theme === 'dark' ? 'bg-emerald-900/10 border-emerald-600/20' : 'bg-emerald-50/60 border-emerald-200'
+                }`}> 
+                  <div className="flex items-center gap-3">
+                    <Icon name="dumbbell" className="w-6 h-6 text-emerald-500" />
+                    <div>
+                      <div className={`text-sm font-semibold ${theme === 'dark' ? 'text-emerald-200' : 'text-emerald-800'}`}>
+                        Peso (kg)
+                      </div>
+                      <div className={`text-xs ${theme === 'dark' ? 'text-emerald-300' : 'text-emerald-600'}`}>
+                        Selecciona kilos y décimas
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                    <select
+                      value={logData.weight != null ? Math.floor(logData.weight) : ''}
+                      onChange={(e) => {
+                        const kgVal = e.target.value;
+                        const kgNum = kgVal === '' ? 0 : parseInt(kgVal, 10);
+                        const decNum = logData.weight != null ? Math.round((logData.weight - Math.floor(logData.weight)) * 10) : 0;
+                        if (kgVal === '' && decNum === 0) {
+                          setLogData(prev => ({ ...prev, weight: null }));
+                        } else {
+                          setLogData(prev => ({ ...prev, weight: kgNum + decNum / 10 }));
+                        }
+                      }}
+                      className={`w-full sm:w-40 px-3 py-2 rounded-lg text-lg font-semibold outline-none focus:ring-2 focus:ring-emerald-300 transition-all duration-150 ${
+                        theme === 'dark' ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border border-gray-200 text-gray-900'
+                      }`}
+                    >
+                      <option value="">--</option>
+                      {Array.from({ length: 210 - 40 + 1 }, (_, i) => 210 - i).map((w) => (
+                        <option key={w} value={w}>{w}</option>
+                      ))}
+                    </select>
+
+                    <div className="flex items-center gap-2 justify-center sm:justify-start">
+                      <span className={`text-2xl font-bold ${theme === 'dark' ? 'text-emerald-200' : 'text-emerald-800'}`}>.</span>
+
+                      <select
+                        value={logData.weight != null ? Math.round((logData.weight - Math.floor(logData.weight)) * 10) : ''}
+                        onChange={(e) => {
+                          const decVal = e.target.value;
+                          const decNum = decVal === '' ? 0 : parseInt(decVal, 10);
+                          const kgNum = logData.weight != null ? Math.floor(logData.weight) : 0;
+                          if (decVal === '' && (!logData.weight || kgNum === 0)) {
+                            setLogData(prev => ({ ...prev, weight: null }));
+                          } else {
+                            setLogData(prev => ({ ...prev, weight: kgNum + decNum / 10 }));
+                          }
+                        }}
+                        className={`w-full sm:w-24 px-3 py-2 rounded-lg text-lg font-semibold outline-none focus:ring-2 focus:ring-emerald-300 transition-all duration-150 ${
+                          theme === 'dark' ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border border-gray-200 text-gray-900'
+                        }`}
+                      >
+                        <option value="">--</option>
+                        {Array.from({ length: 10 }, (_, i) => i).map((d) => (
+                          <option key={d} value={d}>{d}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                
             </div>
 
             {/* Upload Area (reuse existing upload/gallery UI) */}
@@ -433,7 +511,7 @@ const DayModal: React.FC<DayModalProps> = ({
 
                 <label
                   htmlFor="photo-upload"
-                  className={`flex flex-col items-center justify-center cursor-pointer p-8 rounded-xl transition-all duration-300 ${
+                  className={`flex flex-col items-center justify-center cursor-pointer p-6 sm:p-8 rounded-xl transition-all duration-300 ${
                     uploading ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-80'
                   }`}
                 >
@@ -483,25 +561,29 @@ const DayModal: React.FC<DayModalProps> = ({
                         <img
                           src={photo.thumbnailUrl}
                           alt={`Progreso ${photo.date}`}
-                          className="w-full h-32 object-cover"
+                          className="w-full h-20 sm:h-32 object-cover"
                         />
                         
-                        {/* Overlay with actions */}
-                        <div className={`absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100`}>
+                        {/* Overlay with actions (colored dot buttons) */}
+                        <div className={`absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-200 opacity-0 group-hover:opacity-100`}>
+                          {/* View (left) */}
                           <button
                             onClick={() => window.open(photo.url, '_blank')}
-                            className="p-2 bg-white rounded-full mr-2 hover:bg-pink-100 transition-colors"
+                            aria-label="Ver foto completa"
                             title="Ver foto completa"
+                            className="absolute top-2 left-2 p-1.5 rounded-full transition-opacity drop-shadow-sm"
                           >
-                            <Icon name="eye" className="w-4 h-4 text-gray-800" />
+                            <span className="w-3.5 h-3.5 rounded-full block bg-emerald-500" />
                           </button>
-                          
+
+                          {/* Delete (right) */}
                           <button
                             onClick={() => onPhotoDelete(photo.id)}
-                            className="p-2 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
+                            aria-label="Eliminar foto"
                             title="Eliminar foto"
+                            className="absolute top-2 right-2 p-1.5 rounded-full transition-opacity drop-shadow-sm"
                           >
-                            <Icon name="trash" className="w-4 h-4 text-white" />
+                            <span className="w-3.5 h-3.5 rounded-full block bg-red-500" />
                           </button>
                         </div>
                         
@@ -539,8 +621,10 @@ const DayModal: React.FC<DayModalProps> = ({
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center justify-between p-6 border-t border-pink-500/20">
+          {/* Actions: sticky footer so buttons remain visible on small screens */}
+          <div className={`sticky bottom-0 z-[100000] flex items-center justify-between p-4 border-t border-pink-500/20 ${
+            theme === 'dark' ? 'backdrop-blur-sm bg-black/60' : 'backdrop-blur-sm bg-white/70'
+          }`}>
             <div className={`text-sm ${
               theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
             }`}>
