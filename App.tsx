@@ -13,6 +13,7 @@ import DayModal from './components/moduleC/DayModal';
 import PlanSelector from './components/PlanSelector';
 import { CHALLENGE_PLANS } from './components/PlanSelector';
 import Achievements from './components/Achievements';
+import Profile from './components/Profile/Profile';
 import { useAchievementsSimple, ACHIEVEMENTS } from './hooks/useAchievementsSimple';
 import { useModuleC } from './hooks/useModuleC';
 
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   const [selectedModalDate, setSelectedModalDate] = useState<string | null>(null);
   const [isPlanSelectorOpen, setIsPlanSelectorOpen] = useState(false);
   const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const SELECTED_PLAN_KEY = '75hard_selected_plan';
   const [activePlanId, setActivePlanId] = useState<string>(() => {
     try {
@@ -96,6 +98,17 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
   }, [state]);
+
+  // Lock body scroll when profile modal is open
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (isProfileOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+    return;
+  }, [isProfileOpen]);
 
   // Sync day change every 10 seconds to handle midnight rollover
   useEffect(() => {
@@ -560,6 +573,20 @@ const App: React.FC = () => {
                <Icon name="trophy" className="w-4 h-4" />
                <span className="ml-1">Logros</span>
              </button>
+             {/* Profile Button */}
+             <button
+               onClick={() => setIsProfileOpen(true)}
+               title="Ver Perfil"
+               className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
+                 theme === 'dark'
+                   ? 'bg-slate-800/20 text-slate-200 hover:bg-slate-800/30 border border-slate-700/30'
+                   : 'bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-200'
+               }`}
+             >
+               <Icon name="user" className="w-4 h-4" />
+               <span className="ml-1">Perfil</span>
+             </button>
+
              <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
         </div>
@@ -753,6 +780,16 @@ const App: React.FC = () => {
             achievements: [] // TODO: Load from localStorage
           }}
         />
+
+        {/* Profile Modal (renders Profile inside a centered modal card) */}
+        {isProfileOpen && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsProfileOpen(false)} />
+            <div className="relative w-full max-w-4xl h-[90vh] max-h-[90vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300">
+              <Profile isModal theme={theme} onClose={() => setIsProfileOpen(false)} />
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Mobile Bottom Bar (Optional, keeps mobile app feel) */}
