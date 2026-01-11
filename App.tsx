@@ -11,6 +11,9 @@ import InstallPWA from './components/InstallPWA';
 import CalendarioInteligente from './components/moduleC/CalendarioInteligente';
 import DayModal from './components/moduleC/DayModal';
 import PlanSelector from './components/PlanSelector';
+import { CHALLENGE_PLANS } from './components/PlanSelector';
+import Achievements from './components/Achievements';
+import { useAchievementsSimple, ACHIEVEMENTS } from './hooks/useAchievementsSimple';
 import { useModuleC } from './hooks/useModuleC';
 
 const LOCAL_STORAGE_KEY = '75hard_argentina_state_v2';
@@ -21,6 +24,7 @@ const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedModalDate, setSelectedModalDate] = useState<string | null>(null);
   const [isPlanSelectorOpen, setIsPlanSelectorOpen] = useState(false);
+  const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
   const SELECTED_PLAN_KEY = '75hard_selected_plan';
   const [activePlanId, setActivePlanId] = useState<string>(() => {
     try {
@@ -104,6 +108,34 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [state.lastVisitedDate]);
 
+  const calculateCurrentStreak = () => {
+    let streak = 0;
+    for (let i = state.history.length - 1; i >= 0; i--) {
+      const day = state.history[i];
+      if (day.tasks.every(t => t.completed)) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  };
+
+  // Initialize achievements hook
+  const userProgress = useMemo(() => ({
+    currentDay: state.currentDay,
+    currentStreak: calculateCurrentStreak(),
+    totalDaysCompleted: state.history.filter(h => 
+      h.tasks.some(t => t.completed)
+    ).length,
+    perfectDays: state.history.filter(h => 
+      h.tasks.every(t => t.completed)
+    ).length,
+    achievements: [] // Will be loaded from localStorage in the hook
+  }), [state]);
+
+  const achievements = useAchievementsSimple(theme, userProgress);
+
   const toggleTask = useCallback((taskId: string) => {
     setState(prev => {
       const todayStr = getArgentinaDateString();
@@ -118,26 +150,265 @@ const App: React.FC = () => {
         }
         return day;
       });
-      return { ...prev, history: updatedHistory };
+      const newState = { ...prev, history: updatedHistory };
+      
+      // Calculate updated progress immediately
+      const updatedProgress = {
+        currentDay: newState.currentDay,
+        currentStreak: calculateCurrentStreakFromState(newState),
+        totalDaysCompleted: newState.history.filter(h => 
+          h.tasks.some(t => t.completed)
+        ).length,
+        perfectDays: newState.history.filter(h => 
+          h.tasks.every(t => t.completed)
+        ).length,
+        achievements: [] // Will be loaded from localStorage in the hook
+      };
+      
+      // Check achievements immediately with updated progress
+      // Use a direct call to the achievements checking logic
+      setTimeout(() => {
+        // Get the current unlocked achievements from localStorage
+        try {
+          const saved = localStorage.getItem('75hard_achievements');
+          const currentUnlocked = saved ? JSON.parse(saved) : [];
+          
+          // Check each achievement manually
+          ACHIEVEMENTS.forEach(achievement => {
+            if (!currentUnlocked.includes(achievement.id)) {
+              const isUnlocked = checkIfAchievementUnlocked(achievement, updatedProgress);
+              if (isUnlocked) {
+                // Unlock the achievement
+                const newUnlocked = [...currentUnlocked, achievement.id];
+                localStorage.setItem('75hard_achievements', JSON.stringify(newUnlocked));
+                
+                // Show notification
+                const achievementData = ACHIEVEMENTS.find(a => a.id === achievement.id);
+                if (achievementData) {
+                  showAchievementNotification(achievementData);
+                }
+              }
+            }
+          });
+        } catch (e) {
+          console.error('Error checking achievements:', e);
+        }
+      }, 50);
+      
+      return newState;
     });
+  }, []);
+
+  // Helper function to check if an achievement is unlocked
+  const checkIfAchievementUnlocked = useCallback((achievement: any, progress: any) => {
+    const { type, value } = achievement.requirement;
+    
+    switch (type) {
+      case 'days':
+        return progress.currentDay >= value;
+      case 'streak':
+        return progress.currentStreak >= value;
+      case 'perfect_day':
+        return progress.perfectDays >= value;
+      case 'total_days':
+        return progress.totalDaysCompleted >= value;
+      case 'special':
+        return value === '75_hard_complete' && progress.currentDay >= 75;
+      default:
+        return false;
+    }
+  }, []);
+
+  // Helper function to show achievement notification
+  const showAchievementNotification = useCallback((achievement: any) => {
+    try {
+      // Check if notification was already shown
+      const shownNotifications = JSON.parse(localStorage.getItem('75hard_shown_notifications') || '[]');
+      if (shownNotifications.includes(achievement.id)) {
+        return;
+      }
+
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = 'fixed bottom-4 right-4 z-[100] animate-in slide-in-from-right-2 fade-in duration-500';
+      notification.innerHTML = `
+        <div class="relative bg-gradient-to-br bg-yellow-500/20 border-2 border-yellow-500 rounded-2xl p-4 shadow-2xl backdrop-blur-sm max-w-sm">
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-lg font-bold text-yellow-400">✦</span>
+                <span class="text-sm font-bold text-yellow-400">¡LOGRO DESBLOQUEADO!</span>
+              </div>
+              <span class="text-xs font-bold text-yellow-400">+${achievement.points || 50} pts</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">${achievement.icon}</span>
+              <div>
+                <div class="font-bold text-white">${achievement.title}</div>
+                <div class="text-sm text-gray-300">${achievement.description}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Mark as shown
+      shownNotifications.push(achievement.id);
+      localStorage.setItem('75hard_shown_notifications', JSON.stringify(shownNotifications));
+      
+      // Play sound
+      try {
+        const audio = new Audio('/effectsound.mp4');
+        audio.volume = 0.5;
+        audio.play().catch(e => console.log('Audio play failed:', e));
+      } catch (e) {
+        console.log('Audio creation failed:', e);
+      }
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        notification.remove();
+      }, 5000);
+      
+    } catch (e) {
+      console.error('Error showing notification:', e);
+    }
+  }, []);
+
+  // Helper function to calculate streak from a given state
+  const calculateCurrentStreakFromState = (state: ChallengeState) => {
+    let streak = 0;
+    for (let i = state.history.length - 1; i >= 0; i--) {
+      const day = state.history[i];
+      if (day.tasks.every(t => t.completed)) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  };
+
+  // Function to get tasks for the currently selected plan
+  const getTasksForCurrentPlan = useCallback(() => {
+    try {
+      const saved = localStorage.getItem(SELECTED_PLAN_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.id) {
+          // If it's the custom plan, try to load saved custom tasks
+          if (parsed.id === 'custom') {
+            const savedCustomTasks = localStorage.getItem('75hard_custom_tasks');
+            if (savedCustomTasks) {
+              const customTasks = JSON.parse(savedCustomTasks);
+              if (customTasks.length > 0) {
+                return customTasks;
+              }
+            }
+            
+            // Also try to load selected tasks from PlanSelector state
+            const savedSelectedTasks = localStorage.getItem('75hard_selected_custom_tasks');
+            if (savedSelectedTasks) {
+              const selectedTasks = JSON.parse(savedSelectedTasks);
+              if (selectedTasks.length > 0) {
+                // Load all custom task definitions
+                const savedCustomDefinitions = localStorage.getItem('75hard_custom_task_definitions');
+                if (savedCustomDefinitions) {
+                  const customDefinitions = JSON.parse(savedCustomDefinitions);
+                  // Filter only selected tasks
+                  const selectedDefinitions = customDefinitions.filter((task: any) => 
+                    selectedTasks.includes(task.id)
+                  );
+                  
+                  if (selectedDefinitions.length > 0) {
+                    const mapTaskType = (taskId: string) => {
+                      if (taskId.includes('workout') || taskId.includes('exercise')) return 'exercise';
+                      if (taskId.includes('water')) return 'water';
+                      if (taskId.includes('read') || taskId.includes('reading')) return 'reading';
+                      if (taskId.includes('photo') || taskId.includes('progress')) return 'progress';
+                      if (taskId.includes('diet')) return 'diet';
+                      return undefined;
+                    };
+
+                    return selectedDefinitions.map((t: any) => ({
+                      id: t.id,
+                      label: t.label,
+                      description: t.description,
+                      completed: false,
+                      icon: t.icon || 'target',
+                      type: mapTaskType(t.id)
+                    }));
+                  }
+                }
+              }
+            }
+            
+            // If no saved custom tasks, fall back to default custom tasks
+            return [
+              { id: 'custom-diet', label: 'Dieta Personalizada', description: 'Define tus propias reglas alimenticias', completed: false, icon: 'utensils', type: 'diet' },
+              { id: 'custom-workout', label: 'Ejercicio Personalizado', description: 'Establece tu rutina de entrenamiento', completed: false, icon: 'dumbbell', type: 'exercise' },
+              { id: 'custom-water', label: 'Hidratación Personalizada', description: 'Define tu meta de consumo de agua', completed: false, icon: 'droplet', type: 'water' },
+              { id: 'custom-reading', label: 'Lectura Personalizada', description: 'Establece tu meta de lectura', completed: false, icon: 'book-open', type: 'reading' },
+              { id: 'custom-meditation', label: 'Meditación', description: 'Práctica de mindfulness o meditación', completed: false, icon: 'heart', type: undefined },
+              { id: 'custom-sleep', label: 'Descanso', description: 'Controla tus horas de sueño', completed: false, icon: 'moon', type: undefined }
+            ];
+          }
+          
+          // Find the plan in CHALLENGE_PLANS for non-custom plans
+          const plan = CHALLENGE_PLANS.find(p => p.id === parsed.id);
+          if (plan) {
+            // Map plan tasks to app Task shape
+            const mapTaskType = (taskId: string) => {
+              if (taskId.includes('workout') || taskId.includes('exercise')) return 'exercise';
+              if (taskId.includes('water')) return 'water';
+              if (taskId.includes('read') || taskId.includes('reading')) return 'reading';
+              if (taskId.includes('photo') || taskId.includes('progress')) return 'progress';
+              if (taskId.includes('diet')) return 'diet';
+              return undefined;
+            };
+
+            return plan.tasks.map((t: any) => ({
+              id: t.id,
+              label: t.label,
+              description: t.description,
+              completed: false,
+              icon: t.icon || 'target',
+              type: mapTaskType(t.id)
+            }));
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error getting current plan tasks:', e);
+    }
+    // Fallback to INITIAL_TASKS if plan not found
+    return INITIAL_TASKS.map(t => ({...t}));
   }, []);
 
   const resetChallenge = () => {
     if (confirm("¿Estás seguro? Esto reiniciará tu progreso al Día 1.")) {
       const todayStr = getArgentinaDateString();
+      const currentPlanTasks = getTasksForCurrentPlan();
+      
       setState({
         currentDay: 1,
         startDate: todayStr,
-        history: [{ dateString: todayStr, tasks: INITIAL_TASKS.map(t => ({...t})) }],
+        history: [{ dateString: todayStr, tasks: currentPlanTasks }],
         lastVisitedDate: todayStr
       });
+      
+      // Clear shown notifications when resetting challenge
+      achievements.clearShownNotifications();
     }
   };
 
   const handleSelectPlan = (plan: any) => {
     console.log('Plan seleccionado:', plan);
-    // Map plan tasks to app Task shape and replace today's tasks
-    setState(prev => {
+    
+    // Apply same effect as resetChallenge
+    if (confirm(`¿Estás seguro? Esto reiniciará tu progreso al Día 1 y activará el plan "${plan.name}".`)) {
       const todayStr = getArgentinaDateString();
 
       const mapTaskType = (taskId: string) => {
@@ -158,27 +429,62 @@ const App: React.FC = () => {
         type: mapTaskType(t.id)
       }));
 
-      const updatedHistory = prev.history.map(day =>
-        day.dateString === todayStr
-          ? { ...day, tasks: newTasks }
-          : day
-      );
+      // Save custom tasks to localStorage if it's a custom plan
+      if (plan.id === 'custom') {
+        try {
+          // Save the selected tasks (filtered from all custom definitions)
+          localStorage.setItem('75hard_custom_tasks', JSON.stringify(newTasks));
+          console.log('Custom tasks saved:', newTasks);
+          
+          // Also save the selected task IDs and definitions for future filtering
+          const selectedTaskIds = newTasks.map(t => t.id);
+          localStorage.setItem('75hard_selected_custom_tasks', JSON.stringify(selectedTaskIds));
+          
+          // Save all custom task definitions (including unselected ones)
+          // This allows users to modify their selection later
+          const allCustomDefinitions = plan.tasks.map((t: any) => ({
+            id: t.id,
+            label: t.label,
+            description: t.description,
+            icon: t.icon || 'target'
+          }));
+          localStorage.setItem('75hard_custom_task_definitions', JSON.stringify(allCustomDefinitions));
+          
+          console.log('Selected task IDs saved:', selectedTaskIds);
+          console.log('All custom definitions saved:', allCustomDefinitions);
+        } catch (e) {
+          console.error('Error saving custom tasks:', e);
+        }
+      }
 
-      // If today's entry wasn't present (edge case), append it
-      const hasToday = prev.history.some(h => h.dateString === todayStr);
-      const finalHistory = hasToday ? updatedHistory : [...updatedHistory, { dateString: todayStr, tasks: newTasks }];
+      // Reset state completely (same as resetChallenge)
+      setState({
+        currentDay: 1,
+        startDate: todayStr,
+        history: [{ dateString: todayStr, tasks: newTasks }],
+        lastVisitedDate: todayStr
+      });
 
-      const newState = { ...prev, history: finalHistory };
+      // Save to localStorage
+      const newState = {
+        currentDay: 1,
+        startDate: todayStr,
+        history: [{ dateString: todayStr, tasks: newTasks }],
+        lastVisitedDate: todayStr
+      };
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newState));
-      return newState;
-    });
-    // persist active plan id and update header
-    try {
-      const planId = plan?.id || 'custom';
-      setActivePlanId(planId);
-      localStorage.setItem(SELECTED_PLAN_KEY, JSON.stringify({ id: planId }));
-    } catch (e) {
-      // ignore
+
+      // Clear shown notifications when changing plan
+      achievements.clearShownNotifications();
+
+      // persist active plan id and update header
+      try {
+        const planId = plan?.id || 'custom';
+        setActivePlanId(planId);
+        localStorage.setItem(SELECTED_PLAN_KEY, JSON.stringify({ id: planId }));
+      } catch (e) {
+        // ignore
+      }
     }
   };
 
@@ -240,6 +546,19 @@ const App: React.FC = () => {
              >
                <Icon name="target" className="w-4 h-4" />
                <span className="ml-1">Planes</span>
+             </button>
+             
+             {/* Achievements Button */}
+             <button
+               onClick={() => setIsAchievementsOpen(true)}
+               className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
+                 theme === 'dark'
+                   ? 'bg-purple-600/20 text-purple-300 hover:bg-purple-600/30 border border-purple-500/30'
+                   : 'bg-purple-100 text-purple-600 hover:bg-purple-200 border border-purple-300'
+               }`}
+             >
+               <Icon name="trophy" className="w-4 h-4" />
+               <span className="ml-1">Logros</span>
              </button>
              <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
@@ -416,6 +735,24 @@ const App: React.FC = () => {
           onClose={() => setIsPlanSelectorOpen(false)}
           onSelectPlan={handleSelectPlan}
         />
+
+        {/* Achievements Modal */}
+        <Achievements
+          theme={theme}
+          isOpen={isAchievementsOpen}
+          onClose={() => setIsAchievementsOpen(false)}
+          userProgress={{
+            currentDay: state.currentDay,
+            currentStreak: calculateCurrentStreak(),
+            totalDaysCompleted: state.history.filter(h => 
+              h.tasks.some(t => t.completed)
+            ).length,
+            perfectDays: state.history.filter(h => 
+              h.tasks.every(t => t.completed)
+            ).length,
+            achievements: [] // TODO: Load from localStorage
+          }}
+        />
       </main>
 
       {/* Mobile Bottom Bar (Optional, keeps mobile app feel) */}
@@ -453,6 +790,9 @@ const App: React.FC = () => {
       </div>
     
     <InstallPWA />
+    
+    {/* Achievement Notifications */}
+    <achievements.AchievementNotificationComponent />
     </div>
     
   );
