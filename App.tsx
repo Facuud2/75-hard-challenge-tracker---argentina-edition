@@ -11,6 +11,7 @@ import InstallPWA from './components/InstallPWA';
 import CalendarioInteligente from './components/moduleC/CalendarioInteligente';
 import DayModal from './components/moduleC/DayModal';
 import PlanSelector from './components/PlanSelector';
+import Achievements from './components/Achievements';
 import { useModuleC } from './hooks/useModuleC';
 
 const LOCAL_STORAGE_KEY = '75hard_argentina_state_v2';
@@ -21,6 +22,7 @@ const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedModalDate, setSelectedModalDate] = useState<string | null>(null);
   const [isPlanSelectorOpen, setIsPlanSelectorOpen] = useState(false);
+  const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
   const SELECTED_PLAN_KEY = '75hard_selected_plan';
   const [activePlanId, setActivePlanId] = useState<string>(() => {
     try {
@@ -134,6 +136,19 @@ const App: React.FC = () => {
     }
   };
 
+  const calculateCurrentStreak = () => {
+    let streak = 0;
+    for (let i = state.history.length - 1; i >= 0; i--) {
+      const day = state.history[i];
+      if (day.tasks.every(t => t.completed)) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  };
+
   const handleSelectPlan = (plan: any) => {
     console.log('Plan seleccionado:', plan);
     // Map plan tasks to app Task shape and replace today's tasks
@@ -240,6 +255,19 @@ const App: React.FC = () => {
              >
                <Icon name="target" className="w-4 h-4" />
                <span className="ml-1">Planes</span>
+             </button>
+             
+             {/* Achievements Button */}
+             <button
+               onClick={() => setIsAchievementsOpen(true)}
+               className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
+                 theme === 'dark'
+                   ? 'bg-purple-600/20 text-purple-300 hover:bg-purple-600/30 border border-purple-500/30'
+                   : 'bg-purple-100 text-purple-600 hover:bg-purple-200 border border-purple-300'
+               }`}
+             >
+               <Icon name="trophy" className="w-4 h-4" />
+               <span className="ml-1">Logros</span>
              </button>
              <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
@@ -415,6 +443,24 @@ const App: React.FC = () => {
           isOpen={isPlanSelectorOpen}
           onClose={() => setIsPlanSelectorOpen(false)}
           onSelectPlan={handleSelectPlan}
+        />
+
+        {/* Achievements Modal */}
+        <Achievements
+          theme={theme}
+          isOpen={isAchievementsOpen}
+          onClose={() => setIsAchievementsOpen(false)}
+          userProgress={{
+            currentDay: state.currentDay,
+            currentStreak: calculateCurrentStreak(),
+            totalDaysCompleted: state.history.filter(h => 
+              h.tasks.some(t => t.completed)
+            ).length,
+            perfectDays: state.history.filter(h => 
+              h.tasks.every(t => t.completed)
+            ).length,
+            achievements: [] // TODO: Load from localStorage
+          }}
         />
       </main>
 
