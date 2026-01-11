@@ -59,7 +59,7 @@ const CHALLENGE_PLANS: ChallengePlan[] = [
       { id: 'diet', label: 'Dieta Estricta', description: 'Sin comidas trampa ni alcohol', icon: 'utensils' },
       { id: 'workout-1', label: 'Primer Entrenamiento', description: '45 minutos de actividad física', icon: 'dumbbell' },
       { id: 'workout-2', label: 'Segundo Entrenamiento', description: '45 minutos al aire libre (o 8000 pasos)', icon: 'cloud-sun' },
-      { id: 'water', label: 'Agua (7 Galones)', description: 'Tres galón de agua al día', icon: 'droplet' },
+      { id: 'water', label: 'Agua (11 Litros)', description: 'Tres galones de agua al día', icon: 'droplet' },
       { id: 'reading', label: 'Lectura (10 págs)', description: '10 páginas de no ficción', icon: 'book-open' },
       { id: 'photo', label: 'Foto de Progreso', description: 'Foto diaria de progreso', icon: 'camera' },
     ],
@@ -94,8 +94,37 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
     { id: 'custom-water', label: 'Hidratación Personalizada', description: 'Define tu meta de consumo de agua', icon: 'droplet' },
     { id: 'custom-reading', label: 'Lectura Personalizada', description: 'Establece tu meta de lectura', icon: 'book-open' },
     { id: 'custom-meditation', label: 'Meditación', description: 'Práctica de mindfulness o meditación', icon: 'heart' },
-    { id: 'custom-sleep', label: 'Descanso', description: 'Controla tus horas de sueño', icon: 'moon' },
+    { id: 'custom-sleep', label: 'Descanso', description: 'Controla tus horas de sueño', icon: 'moon' }
   ]);
+
+  // Load selected tasks from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedSelectedTasks = localStorage.getItem('75hard_selected_custom_tasks');
+      if (savedSelectedTasks) {
+        const selectedTasks = JSON.parse(savedSelectedTasks);
+        setCustomTasks(selectedTasks);
+      }
+      
+      const savedCustomDefinitions = localStorage.getItem('75hard_custom_task_definitions');
+      if (savedCustomDefinitions) {
+        const definitions = JSON.parse(savedCustomDefinitions);
+        setCustomTaskDefinitions(definitions);
+      }
+    } catch (e) {
+      console.error('Error loading custom tasks state:', e);
+    }
+  }, []);
+
+  // Save selected tasks to localStorage when they change
+  useEffect(() => {
+    try {
+      localStorage.setItem('75hard_selected_custom_tasks', JSON.stringify(customTasks));
+      localStorage.setItem('75hard_custom_task_definitions', JSON.stringify(customTaskDefinitions));
+    } catch (e) {
+      console.error('Error saving custom tasks state:', e);
+    }
+  }, [customTasks, customTaskDefinitions]);
 
   const availableIcons = ['utensils', 'dumbbell', 'droplet', 'book-open', 'heart', 'moon', 'star', 'target', 'zap', 'shield'];
 
@@ -870,3 +899,4 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
 };
 
 export default PlanSelector;
+export { CHALLENGE_PLANS };
