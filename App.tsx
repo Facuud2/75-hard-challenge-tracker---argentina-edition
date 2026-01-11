@@ -125,8 +125,42 @@ const App: React.FC = () => {
 
   const handleSelectPlan = (plan: any) => {
     console.log('Plan seleccionado:', plan);
-    // Aquí implementaremos la lógica para cambiar el plan
-    alert(`Plan "${plan.name}" seleccionado! (Funcionalidad por implementar)`);
+    // Map plan tasks to app Task shape and replace today's tasks
+    setState(prev => {
+      const todayStr = getArgentinaDateString();
+
+      const mapTaskType = (taskId: string) => {
+        if (taskId.includes('workout') || taskId.includes('exercise')) return 'exercise';
+        if (taskId.includes('water')) return 'water';
+        if (taskId.includes('read') || taskId.includes('reading')) return 'reading';
+        if (taskId.includes('photo') || taskId.includes('progress')) return 'progress';
+        if (taskId.includes('diet')) return 'diet';
+        return undefined;
+      };
+
+      const newTasks = plan.tasks.map((t: any) => ({
+        id: t.id,
+        label: t.label,
+        description: t.description,
+        completed: false,
+        icon: t.icon || 'target',
+        type: mapTaskType(t.id)
+      }));
+
+      const updatedHistory = prev.history.map(day =>
+        day.dateString === todayStr
+          ? { ...day, tasks: newTasks }
+          : day
+      );
+
+      // If today's entry wasn't present (edge case), append it
+      const hasToday = prev.history.some(h => h.dateString === todayStr);
+      const finalHistory = hasToday ? updatedHistory : [...updatedHistory, { dateString: todayStr, tasks: newTasks }];
+
+      const newState = { ...prev, history: finalHistory };
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newState));
+      return newState;
+    });
   };
 
   const todayData = useMemo(() => 
@@ -136,8 +170,12 @@ const App: React.FC = () => {
 
   const currentTasks = todayData?.tasks || INITIAL_TASKS;
   const completedCount = currentTasks.filter(t => t.completed).length;
-  const totalCount = INITIAL_TASKS.length;
-  const dailyProgress = (completedCount / totalCount) * 100;
+  const totalCount = currentTasks.length;
+  const dailyProgress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
+  // If there are many tasks, allow the TaskList to scroll vertically
+  const TASKS_SCROLL_THRESHOLD = 6;
+  const shouldScrollTasks = currentTasks.length > TASKS_SCROLL_THRESHOLD;
   
   // Overall progress calc
   const overallProgress = (state.currentDay / 75) * 100;
@@ -321,10 +359,12 @@ const App: React.FC = () => {
                 </span>
              </div>
              
-             <div className="grid gap-3">
-                {currentTasks.map(task => (
-                  <TaskItem key={task.id} task={task} onToggle={toggleTask} theme={theme} />
-                ))}
+             <div className={`${shouldScrollTasks ? 'max-h-[50vh] overflow-y-auto pr-2' : ''}`}>
+               <div className="grid gap-3">
+                 {currentTasks.map(task => (
+                   <TaskItem key={task.id} task={task} onToggle={toggleTask} theme={theme} />
+                 ))}
+               </div>
              </div>
           </section>
 
