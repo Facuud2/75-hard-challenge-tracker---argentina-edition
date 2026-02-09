@@ -267,6 +267,59 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
               </div>
             </section>
 
+            {/* Level Badge Box y Currently Online - Alineados horizontalmente */}
+            <div className="flex flex-col lg:flex-row gap-4 mb-4 sm:mb-8">
+              {/* Level Badge Box */}
+              <div className={`flex-1 ${theme === 'dark' ? 'bg-[#12151a]/50' : 'bg-pink-50/80'} p-4 sm:p-6 rounded-lg`}> 
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4">
+                  <h3 className={`${theme === 'dark' ? 'text-lg sm:text-xl text-white' : 'text-lg sm:text-xl text-pink-700'} font-light mb-2 sm:mb-0`}>Level <span className="font-bold">{stats.level}</span></h3>
+                </div>
+                <div className="mb-3 sm:mb-4">
+                  <LevelBadge level={stats.level} xp={stats.xp} nextXp={stats.nextLevelXp} theme={theme} />
+                </div>
+                <button className={`${theme === 'dark' ? 'text-xs bg-[#21262d] hover:bg-[#2a3038] text-white py-2 px-4 rounded border border-gray-600' : 'text-xs bg-pink-100 text-pink-700 hover:bg-pink-200 py-2 px-4 rounded border border-pink-200'} w-fit transition-colors`}>
+                  Edit Profile
+                </button>
+              </div>
+
+              {/* Online Status Section */}
+              <div className={`lg:w-80 ${theme === 'dark' ? 'bg-[#12151a]/30 p-4 rounded border border-gray-800' : 'bg-pink-50 p-4 rounded border border-pink-200'}`}>
+                <h3 className={`${theme === 'dark' ? 'text-blue-400' : 'text-pink-600'} text-lg mb-1`}>Currently Online</h3>
+                
+                <div className="flex gap-2 mb-6">
+                  {badges.map((badge) => (
+                    <div key={badge.id} title={badge.name} className={`${theme === 'dark' ? 'bg-gray-800 p-1 rounded border border-gray-600 hover:border-white text-yellow-500' : 'bg-white p-1 rounded border border-pink-100 text-pink-600'} cursor-help transition-colors`}>
+                      {badge.icon}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Sidebar Menu Links */}
+                <nav className="flex flex-col gap-1 text-sm">
+                  <div className="flex justify-between group cursor-pointer">
+                    <span className="text-gray-400 group-hover:text-white">Challenges</span>
+                    <span className="text-gray-600 group-hover:text-gray-400">150</span>
+                  </div>
+                  <div className="flex justify-between group cursor-pointer">
+                    <span className="text-gray-400 group-hover:text-white">Inventory</span>
+                    <span className="text-gray-600 group-hover:text-gray-400"></span>
+                  </div>
+                  <div className="flex justify-between group cursor-pointer">
+                    <span className="text-gray-400 group-hover:text-white">Screenshots</span>
+                    <span className="text-gray-600 group-hover:text-gray-400">12</span>
+                  </div>
+                  <div className="flex justify-between group cursor-pointer">
+                    <span className="text-gray-400 group-hover:text-white">Videos</span>
+                    <span className="text-gray-600 group-hover:text-gray-400"></span>
+                  </div>
+                  <div className="flex justify-between group cursor-pointer">
+                    <span className="text-gray-400 group-hover:text-white">Reviews</span>
+                    <span className="text-gray-600 group-hover:text-gray-400">2</span>
+                  </div>
+                </nav>
+              </div>
+            </div>
+
             {/* Featured Showcase (Simulado como Featured Games) */}
             <section className="mb-4 sm:mb-8">
               <h2 className="text-gray-400 text-xs sm:text-sm mb-2 font-medium">FEATURED CHALLENGES</h2>
@@ -298,70 +351,121 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
               </div>
             </section>
 
+            {/* Comments Section */}
+            <section className="mt-6 sm:mt-8">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className={`${theme === 'dark' ? 'text-white' : 'text-pink-700'} text-base sm:text-lg`}>Comentarios</h2>
+                <span className={`${theme === 'dark' ? 'text-xs text-gray-500' : 'text-xs text-pink-600'}`}>12 comentarios</span>
+              </div>
+              
+              {/* Comment Input */}
+              <div className={`${theme === 'dark' ? 'bg-[#12151a]/50' : 'bg-pink-50/80'} p-4 rounded-lg mb-4`}>
+                <textarea
+                  placeholder="Escribe un comentario..."
+                  className={`w-full p-3 rounded border ${theme === 'dark' ? 'bg-[#21262d] border-gray-600 text-white placeholder-gray-400' : 'bg-white border-pink-200 text-gray-900 placeholder-gray-500'} resize-none focus:outline-none focus:ring-2 focus:ring-pink-500`}
+                  rows={3}
+                />
+                <div className="flex justify-end mt-2">
+                  <button className={`${theme === 'dark' ? 'bg-pink-600 hover:bg-pink-700' : 'bg-pink-500 hover:bg-pink-600'} text-white px-4 py-2 rounded text-sm transition-colors`}>
+                    Publicar comentario
+                  </button>
+                </div>
+              </div>
+
+              {/* Comments List */}
+              <div className="space-y-3">
+                {/* Comment 1 */}
+                <div className={`${theme === 'dark' ? 'bg-[#12151a]/30' : 'bg-pink-50/60'} p-4 rounded-lg`}>
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                      JD
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Juan Díaz</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-xs`}>Hace 2 horas</span>
+                      </div>
+                      <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
+                        ¡Excelente progreso con el desafío! Sigue así, estás muy cerca de completarlo. La constancia es la clave del éxito.
+                      </p>
+                      <div className="flex gap-4 mt-2">
+                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
+                          👍 Útil (3)
+                        </button>
+                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
+                          Responder
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Comment 2 */}
+                <div className={`${theme === 'dark' ? 'bg-[#12151a]/30' : 'bg-pink-50/60'} p-4 rounded-lg`}>
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center text-white font-semibold">
+                      MG
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>María García</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-xs`}>Hace 5 horas</span>
+                      </div>
+                      <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
+                        ¿Cómo llevas la parte de la dieta? Yo estoy luchando con ese aspecto del desafío. ¡Ánimo!
+                      </p>
+                      <div className="flex gap-4 mt-2">
+                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
+                          👍 Útil (1)
+                        </button>
+                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
+                          Responder
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Comment 3 */}
+                <div className={`${theme === 'dark' ? 'bg-[#12151a]/30' : 'bg-pink-50/60'} p-4 rounded-lg`}>
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center text-white font-semibold">
+                      CR
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Carlos Rodríguez</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-xs`}>Ayer</span>
+                      </div>
+                      <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
+                        ¡Increíble motivación! Tu dedicación es inspiradora. ¿Podrías compartir algunos consejos para mantener la disciplina?
+                      </p>
+                      <div className="flex gap-4 mt-2">
+                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
+                          👍 Útil (5)
+                        </button>
+                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
+                          Responder
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Load More Comments */}
+              <div className="text-center mt-4">
+                <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-sm transition-colors`}>
+                  Cargar más comentarios...
+                </button>
+              </div>
+            </section>
+
           </div>
 
           {/* ================= RIGHT COLUMN (Sidebar) ================= */}
           <aside className="w-full md:w-72 flex flex-col gap-4 sm:gap-6">
             
-            {/* Level Badge Box - Siempre primero en móvil */}
-            <div className={`${theme === 'dark' ? 'bg-[#12151a]/50' : 'bg-pink-50/80'} p-4 sm:p-6 rounded-lg order-1`}> 
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4">
-                <h3 className={`${theme === 'dark' ? 'text-lg sm:text-xl text-white' : 'text-lg sm:text-xl text-pink-700'} font-light mb-2 sm:mb-0`}>Level <span className="font-bold">{stats.level}</span></h3>
-              </div>
-              <div className="mb-3 sm:mb-4">
-                <LevelBadge level={stats.level} xp={stats.xp} nextXp={stats.nextLevelXp} theme={theme} />
-              </div>
-              <button className={`${theme === 'dark' ? 'text-xs bg-[#21262d] hover:bg-[#2a3038] text-white py-2 px-4 rounded border border-gray-600' : 'text-xs bg-pink-100 text-pink-700 hover:bg-pink-200 py-2 px-4 rounded border border-pink-200'} w-fit transition-colors`}>
-                Edit Profile
-              </button>
-            </div>
-
-            {/* Online Status Section - Segundo en móvil */}
-            <div className={`${theme === 'dark' ? 'bg-[#12151a]/30 p-4 rounded border border-gray-800' : 'bg-pink-50 p-4 rounded border border-pink-200'} order-2`}>
-              <h3 className={`${theme === 'dark' ? 'text-blue-400' : 'text-pink-600'} text-lg mb-1`}>Currently Online</h3>
-              
-              <div className="flex gap-2 mb-6">
-                {badges.map((badge) => (
-                  <div key={badge.id} title={badge.name} className={`${theme === 'dark' ? 'bg-gray-800 p-1 rounded border border-gray-600 hover:border-white text-yellow-500' : 'bg-white p-1 rounded border border-pink-100 text-pink-600'} cursor-help transition-colors`}>
-                    {badge.icon}
-                  </div>
-                ))}
-              </div>
-
-              {/* Sidebar Menu Links */}
-              <nav className="flex flex-col gap-1 text-sm">
-                <div className="flex justify-between group cursor-pointer">
-                  <span className="text-gray-400 group-hover:text-white">Challenges</span>
-                  <span className="text-gray-600 group-hover:text-gray-400">150</span>
-                </div>
-                <div className="flex justify-between group cursor-pointer">
-                  <span className="text-gray-400 group-hover:text-white">Inventory</span>
-                  <span className="text-gray-600 group-hover:text-gray-400"></span>
-                </div>
-                <div className="flex justify-between group cursor-pointer">
-                  <span className="text-gray-400 group-hover:text-white">Screenshots</span>
-                  <span className="text-gray-600 group-hover:text-gray-400">12</span>
-                </div>
-                <div className="flex justify-between group cursor-pointer">
-                  <span className="text-gray-400 group-hover:text-white">Videos</span>
-                  <span className="text-gray-600 group-hover:text-gray-400"></span>
-                </div>
-                <div className="flex justify-between group cursor-pointer">
-                  <span className="text-gray-400 group-hover:text-white">Reviews</span>
-                  <span className="text-gray-600 group-hover:text-gray-400">2</span>
-                </div>
-              </nav>
-            </div>
-
-            {/* Groups / Community - Tercero en móvil */}
-            <div className="order-3">
-               <h3 className="text-gray-400 mb-2 font-medium">GROUPS</h3>
-               <div className="flex items-center gap-2 text-sm text-gray-300 group cursor-pointer">
-                 <div className="w-8 h-8 bg-blue-900 rounded flex items-center justify-center">🇦🇷</div>
-                 <div className="group-hover:underline">Argentina</div>
-               </div>
-            </div>
-
           </aside>
         </div>
       </div>
