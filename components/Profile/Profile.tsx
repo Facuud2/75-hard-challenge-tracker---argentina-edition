@@ -267,6 +267,19 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
               </div>
             </section>
 
+            {/* Level Badge Box - Ahora después de estadísticas */}
+            <div className={`${theme === 'dark' ? 'bg-[#12151a]/50' : 'bg-pink-50/80'} p-4 sm:p-6 rounded-lg mb-4 sm:mb-8`}> 
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4">
+                <h3 className={`${theme === 'dark' ? 'text-lg sm:text-xl text-white' : 'text-lg sm:text-xl text-pink-700'} font-light mb-2 sm:mb-0`}>Level <span className="font-bold">{stats.level}</span></h3>
+              </div>
+              <div className="mb-3 sm:mb-4">
+                <LevelBadge level={stats.level} xp={stats.xp} nextXp={stats.nextLevelXp} theme={theme} />
+              </div>
+              <button className={`${theme === 'dark' ? 'text-xs bg-[#21262d] hover:bg-[#2a3038] text-white py-2 px-4 rounded border border-gray-600' : 'text-xs bg-pink-100 text-pink-700 hover:bg-pink-200 py-2 px-4 rounded border border-pink-200'} w-fit transition-colors`}>
+                Edit Profile
+              </button>
+            </div>
+
             {/* Featured Showcase (Simulado como Featured Games) */}
             <section className="mb-4 sm:mb-8">
               <h2 className="text-gray-400 text-xs sm:text-sm mb-2 font-medium">FEATURED CHALLENGES</h2>
@@ -303,21 +316,8 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
           {/* ================= RIGHT COLUMN (Sidebar) ================= */}
           <aside className="w-full md:w-72 flex flex-col gap-4 sm:gap-6">
             
-            {/* Level Badge Box - Siempre primero en móvil */}
-            <div className={`${theme === 'dark' ? 'bg-[#12151a]/50' : 'bg-pink-50/80'} p-4 sm:p-6 rounded-lg order-1`}> 
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4">
-                <h3 className={`${theme === 'dark' ? 'text-lg sm:text-xl text-white' : 'text-lg sm:text-xl text-pink-700'} font-light mb-2 sm:mb-0`}>Level <span className="font-bold">{stats.level}</span></h3>
-              </div>
-              <div className="mb-3 sm:mb-4">
-                <LevelBadge level={stats.level} xp={stats.xp} nextXp={stats.nextLevelXp} theme={theme} />
-              </div>
-              <button className={`${theme === 'dark' ? 'text-xs bg-[#21262d] hover:bg-[#2a3038] text-white py-2 px-4 rounded border border-gray-600' : 'text-xs bg-pink-100 text-pink-700 hover:bg-pink-200 py-2 px-4 rounded border border-pink-200'} w-fit transition-colors`}>
-                Edit Profile
-              </button>
-            </div>
-
-            {/* Online Status Section - Segundo en móvil */}
-            <div className={`${theme === 'dark' ? 'bg-[#12151a]/30 p-4 rounded border border-gray-800' : 'bg-pink-50 p-4 rounded border border-pink-200'} order-2`}>
+            {/* Online Status Section - Primero en móvil */}
+            <div className={`${theme === 'dark' ? 'bg-[#12151a]/30 p-4 rounded border border-gray-800' : 'bg-pink-50 p-4 rounded border border-pink-200'} order-1`}>
               <h3 className={`${theme === 'dark' ? 'text-blue-400' : 'text-pink-600'} text-lg mb-1`}>Currently Online</h3>
               
               <div className="flex gap-2 mb-6">
@@ -353,8 +353,8 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
               </nav>
             </div>
 
-            {/* Groups / Community - Tercero en móvil */}
-            <div className="order-3">
+            {/* Groups / Community - Segundo en móvil */}
+            <div className="order-2">
                <h3 className="text-gray-400 mb-2 font-medium">GROUPS</h3>
                <div className="flex items-center gap-2 text-sm text-gray-300 group cursor-pointer">
                  <div className="w-8 h-8 bg-blue-900 rounded flex items-center justify-center">🇦🇷</div>
