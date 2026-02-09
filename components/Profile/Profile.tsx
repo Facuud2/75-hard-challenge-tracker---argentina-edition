@@ -356,15 +356,6 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
           {/* ================= RIGHT COLUMN (Sidebar) ================= */}
           <aside className="w-full md:w-72 flex flex-col gap-4 sm:gap-6">
             
-            {/* Groups / Community - Primero en móvil */}
-            <div className="order-1">
-               <h3 className="text-gray-400 mb-2 font-medium">GROUPS</h3>
-               <div className="flex items-center gap-2 text-sm text-gray-300 group cursor-pointer">
-                 <div className="w-8 h-8 bg-blue-900 rounded flex items-center justify-center">🇦🇷</div>
-                 <div className="group-hover:underline">Argentina</div>
-               </div>
-            </div>
-
           </aside>
         </div>
       </div>
