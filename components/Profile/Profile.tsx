@@ -267,17 +267,57 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
               </div>
             </section>
 
-            {/* Level Badge Box - Ahora después de estadísticas */}
-            <div className={`${theme === 'dark' ? 'bg-[#12151a]/50' : 'bg-pink-50/80'} p-4 sm:p-6 rounded-lg mb-4 sm:mb-8`}> 
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4">
-                <h3 className={`${theme === 'dark' ? 'text-lg sm:text-xl text-white' : 'text-lg sm:text-xl text-pink-700'} font-light mb-2 sm:mb-0`}>Level <span className="font-bold">{stats.level}</span></h3>
+            {/* Level Badge Box y Currently Online - Alineados horizontalmente */}
+            <div className="flex flex-col lg:flex-row gap-4 mb-4 sm:mb-8">
+              {/* Level Badge Box */}
+              <div className={`flex-1 ${theme === 'dark' ? 'bg-[#12151a]/50' : 'bg-pink-50/80'} p-4 sm:p-6 rounded-lg`}> 
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4">
+                  <h3 className={`${theme === 'dark' ? 'text-lg sm:text-xl text-white' : 'text-lg sm:text-xl text-pink-700'} font-light mb-2 sm:mb-0`}>Level <span className="font-bold">{stats.level}</span></h3>
+                </div>
+                <div className="mb-3 sm:mb-4">
+                  <LevelBadge level={stats.level} xp={stats.xp} nextXp={stats.nextLevelXp} theme={theme} />
+                </div>
+                <button className={`${theme === 'dark' ? 'text-xs bg-[#21262d] hover:bg-[#2a3038] text-white py-2 px-4 rounded border border-gray-600' : 'text-xs bg-pink-100 text-pink-700 hover:bg-pink-200 py-2 px-4 rounded border border-pink-200'} w-fit transition-colors`}>
+                  Edit Profile
+                </button>
               </div>
-              <div className="mb-3 sm:mb-4">
-                <LevelBadge level={stats.level} xp={stats.xp} nextXp={stats.nextLevelXp} theme={theme} />
+
+              {/* Online Status Section */}
+              <div className={`lg:w-80 ${theme === 'dark' ? 'bg-[#12151a]/30 p-4 rounded border border-gray-800' : 'bg-pink-50 p-4 rounded border border-pink-200'}`}>
+                <h3 className={`${theme === 'dark' ? 'text-blue-400' : 'text-pink-600'} text-lg mb-1`}>Currently Online</h3>
+                
+                <div className="flex gap-2 mb-6">
+                  {badges.map((badge) => (
+                    <div key={badge.id} title={badge.name} className={`${theme === 'dark' ? 'bg-gray-800 p-1 rounded border border-gray-600 hover:border-white text-yellow-500' : 'bg-white p-1 rounded border border-pink-100 text-pink-600'} cursor-help transition-colors`}>
+                      {badge.icon}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Sidebar Menu Links */}
+                <nav className="flex flex-col gap-1 text-sm">
+                  <div className="flex justify-between group cursor-pointer">
+                    <span className="text-gray-400 group-hover:text-white">Challenges</span>
+                    <span className="text-gray-600 group-hover:text-gray-400">150</span>
+                  </div>
+                  <div className="flex justify-between group cursor-pointer">
+                    <span className="text-gray-400 group-hover:text-white">Inventory</span>
+                    <span className="text-gray-600 group-hover:text-gray-400"></span>
+                  </div>
+                  <div className="flex justify-between group cursor-pointer">
+                    <span className="text-gray-400 group-hover:text-white">Screenshots</span>
+                    <span className="text-gray-600 group-hover:text-gray-400">12</span>
+                  </div>
+                  <div className="flex justify-between group cursor-pointer">
+                    <span className="text-gray-400 group-hover:text-white">Videos</span>
+                    <span className="text-gray-600 group-hover:text-gray-400"></span>
+                  </div>
+                  <div className="flex justify-between group cursor-pointer">
+                    <span className="text-gray-400 group-hover:text-white">Reviews</span>
+                    <span className="text-gray-600 group-hover:text-gray-400">2</span>
+                  </div>
+                </nav>
               </div>
-              <button className={`${theme === 'dark' ? 'text-xs bg-[#21262d] hover:bg-[#2a3038] text-white py-2 px-4 rounded border border-gray-600' : 'text-xs bg-pink-100 text-pink-700 hover:bg-pink-200 py-2 px-4 rounded border border-pink-200'} w-fit transition-colors`}>
-                Edit Profile
-              </button>
             </div>
 
             {/* Featured Showcase (Simulado como Featured Games) */}
@@ -316,45 +356,8 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
           {/* ================= RIGHT COLUMN (Sidebar) ================= */}
           <aside className="w-full md:w-72 flex flex-col gap-4 sm:gap-6">
             
-            {/* Online Status Section - Primero en móvil */}
-            <div className={`${theme === 'dark' ? 'bg-[#12151a]/30 p-4 rounded border border-gray-800' : 'bg-pink-50 p-4 rounded border border-pink-200'} order-1`}>
-              <h3 className={`${theme === 'dark' ? 'text-blue-400' : 'text-pink-600'} text-lg mb-1`}>Currently Online</h3>
-              
-              <div className="flex gap-2 mb-6">
-                {badges.map((badge) => (
-                  <div key={badge.id} title={badge.name} className={`${theme === 'dark' ? 'bg-gray-800 p-1 rounded border border-gray-600 hover:border-white text-yellow-500' : 'bg-white p-1 rounded border border-pink-100 text-pink-600'} cursor-help transition-colors`}>
-                    {badge.icon}
-                  </div>
-                ))}
-              </div>
-
-              {/* Sidebar Menu Links */}
-              <nav className="flex flex-col gap-1 text-sm">
-                <div className="flex justify-between group cursor-pointer">
-                  <span className="text-gray-400 group-hover:text-white">Challenges</span>
-                  <span className="text-gray-600 group-hover:text-gray-400">150</span>
-                </div>
-                <div className="flex justify-between group cursor-pointer">
-                  <span className="text-gray-400 group-hover:text-white">Inventory</span>
-                  <span className="text-gray-600 group-hover:text-gray-400"></span>
-                </div>
-                <div className="flex justify-between group cursor-pointer">
-                  <span className="text-gray-400 group-hover:text-white">Screenshots</span>
-                  <span className="text-gray-600 group-hover:text-gray-400">12</span>
-                </div>
-                <div className="flex justify-between group cursor-pointer">
-                  <span className="text-gray-400 group-hover:text-white">Videos</span>
-                  <span className="text-gray-600 group-hover:text-gray-400"></span>
-                </div>
-                <div className="flex justify-between group cursor-pointer">
-                  <span className="text-gray-400 group-hover:text-white">Reviews</span>
-                  <span className="text-gray-600 group-hover:text-gray-400">2</span>
-                </div>
-              </nav>
-            </div>
-
-            {/* Groups / Community - Segundo en móvil */}
-            <div className="order-2">
+            {/* Groups / Community - Primero en móvil */}
+            <div className="order-1">
                <h3 className="text-gray-400 mb-2 font-medium">GROUPS</h3>
                <div className="flex items-center gap-2 text-sm text-gray-300 group cursor-pointer">
                  <div className="w-8 h-8 bg-blue-900 rounded flex items-center justify-center">🇦🇷</div>
