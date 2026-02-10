@@ -1,10 +1,18 @@
-import React from 'react';
-import { Trophy, Flame, Award, Gamepad2, MapPin, Star, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Trophy, Flame, Award, Gamepad2, MapPin, Star, X, User, LogOut } from 'lucide-react';
+import Login from '../Register/Login';
+import Register from '../Register/Register';
 
 interface ProfileProps {
   theme?: 'dark' | 'light';
   isModal?: boolean;
   onClose?: () => void;
+}
+
+interface UserData {
+  name: string;
+  email: string;
+  avatarUrl?: string;
 }
 
 // ==========================================
@@ -187,7 +195,73 @@ const ActivityRow = ({
 // ==========================================
 
 export default function Profile({ theme = 'dark', isModal = false, onClose }: ProfileProps) {
-  const { username, handle, stats, activities, badges, location, status } = USER_DATA;
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  const [authView, setAuthView] = useState<'login' | 'register'>('login');
+
+  const handleLogin = (email: string, password: string) => {
+    // Validación específica para credenciales de prueba
+    if (email === 'correo@correo.com' && password === '123') {
+      setCurrentUser({
+        name: 'Usuario Demo',
+        email: email,
+        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'
+      });
+      setIsLoggedIn(true);
+    } else {
+      // Simulación de login para otras credenciales (puedes agregar más validaciones aquí)
+      alert('Credenciales incorrectas. Usa correo@correo.com y contraseña 123');
+    }
+  };
+
+  const handleRegister = (userData: { name: string; email: string; password: string }) => {
+    // Simulación de registro exitoso
+    setCurrentUser({
+      name: userData.name,
+      email: userData.email,
+      avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + userData.name
+    });
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+  };
+
+  // Si no está logueado, mostrar la pantalla de autenticación
+  if (!isLoggedIn) {
+    return (
+      <div className={`min-h-screen ${isModal ? 'h-[90vh]' : ''} flex items-center justify-center p-4 ${
+        theme === 'dark' ? 'bg-black text-white' : 'bg-white text-gray-900'
+      }`}>
+        <div className="w-full max-w-md">
+          {authView === 'login' ? (
+            <Login
+              theme={theme}
+              onLogin={handleLogin}
+              onSwitchToRegister={() => setAuthView('register')}
+            />
+          ) : (
+            <Register
+              theme={theme}
+              onRegister={handleRegister}
+              onSwitchToLogin={() => setAuthView('login')}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Usuario logueado - usar datos del usuario actual o datos de demo
+  const displayUser = currentUser ? {
+    ...USER_DATA,
+    username: currentUser.name,
+    email: currentUser.email,
+    avatarUrl: currentUser.avatarUrl || USER_DATA.avatarUrl
+  } : USER_DATA;
+  const { username, handle, stats, activities, badges, location, status } = displayUser;
 
   const rootClass = isModal
     ? `w-full h-full p-2 sm:p-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'}`
@@ -216,6 +290,16 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
               <X className="w-4 h-4" />
             </button>
           )}
+
+          {/* Logout button */}
+          <button
+            onClick={handleLogout}
+            className={`fixed top-4 left-4 z-50 p-2 rounded-lg transition-colors flex items-center gap-2 ${
+              theme === 'dark' ? 'bg-black/40 text-pink-300 hover:bg-black/30' : 'bg-white/60 text-pink-600 hover:bg-white/70'
+            }`}>
+            <LogOut className="w-4 h-4" />
+            <span className="text-sm">Cerrar sesión</span>
+          </button>
           
           {/* ================= LEFT COLUMN (Avatar & Info) ================= */}
           <div className="flex-1 space-y-4 sm:space-y-6">
@@ -225,8 +309,8 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
               <div className="relative mx-auto sm:mx-0">
                 <div className="w-24 h-24 sm:w-32 sm:h-32 border-2 border-[#5c7e10] p-1 bg-gradient-to-b from-[#5c7e10] to-transparent">
                   <img 
-                    src={USER_DATA.avatarUrl} 
-                    alt={`Avatar de ${username}`} 
+                    src={currentUser?.avatarUrl || USER_DATA.avatarUrl} 
+                    alt={`Avatar de ${currentUser?.name || username}`} 
                     className="w-full h-full object-cover bg-black" 
                     loading="lazy"
                     width={96}
@@ -242,13 +326,17 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
               </div>
               
               <div className="flex flex-col justify-start pt-0 sm:pt-2 text-center sm:text-left">
-                <h1 className="text-2xl sm:text-3xl text-white font-bold tracking-tight">{username}</h1>
+                <h1 className="text-2xl sm:text-3xl text-white font-bold tracking-tight">
+                  {currentUser?.name || username}
+                </h1>
                 <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-gray-400 mb-2">
-                  <span>{handle}</span>
+                  <span>{currentUser?.email || handle}</span>
                   <MapPin size={14} />
                   <span>{location}</span>
                 </div>
-                <p className="text-gray-400 text-sm max-w-md mb-3 sm:mb-4 italic text-center sm:text-left">"{USER_DATA.bio}"</p>
+                <p className="text-gray-400 text-sm max-w-md mb-3 sm:mb-4 italic text-center sm:text-left">
+                  "{currentUser ? 'Miembro activo del 75 Hard Challenge' : USER_DATA.bio}"
+                </p>
                 <div className="flex justify-center sm:justify-start">
                   <a href="#" className="text-xs text-blue-400 hover:text-white transition-colors">View more info</a>
                 </div>
