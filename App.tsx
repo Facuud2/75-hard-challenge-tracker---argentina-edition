@@ -290,6 +290,44 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Helper function to show save notification
+  const showSaveToast = useCallback((date: string) => {
+    try {
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = 'fixed bottom-4 right-4 z-[100] animate-in slide-in-from-right-2 fade-in duration-500';
+      notification.innerHTML = `
+        <div class="relative bg-gradient-to-br bg-emerald-500/20 border-2 border-emerald-500 rounded-2xl p-4 shadow-2xl backdrop-blur-sm max-w-sm">
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-lg font-bold text-emerald-400">✓</span>
+                <span class="text-sm font-bold text-emerald-400">¡CAMBIOS GUARDADOS!</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">📝</span>
+              <div>
+                <div class="font-bold text-white">Progreso del día</div>
+                <div class="text-sm text-gray-300">${new Date(date).toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Auto-hide after 3 seconds
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+      
+    } catch (e) {
+      console.error('Error showing save toast:', e);
+    }
+  }, []);
+
   // Helper function to calculate streak from a given state
   const calculateCurrentStreakFromState = (state: ChallengeState) => {
     let streak = 0;
@@ -751,6 +789,7 @@ const App: React.FC = () => {
             date={selectedModalDate}
             dailyLog={moduleC.getDailyLog(selectedModalDate)}
             onSave={moduleC.saveDailyLog}
+            onSaveSuccess={() => showSaveToast(selectedModalDate)}
             photos={moduleC.getPhotosForDate(selectedModalDate)}
             onPhotoUpload={moduleC.uploadPhoto}
             onPhotoDelete={moduleC.deletePhoto}
