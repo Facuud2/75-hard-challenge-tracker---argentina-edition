@@ -10,6 +10,7 @@ interface DayModalProps {
   date: string;
   dailyLog?: DailyLog;
   onSave: (log: DailyLog) => void;
+  onSaveSuccess?: () => void;
   photos: any[];
   onPhotoUpload: (photo: any) => void;
   onPhotoDelete: (photoId: string) => void;
@@ -22,6 +23,7 @@ const DayModal: React.FC<DayModalProps> = ({
   date,
   dailyLog,
   onSave,
+  onSaveSuccess,
   photos,
   onPhotoUpload,
   onPhotoDelete
@@ -60,11 +62,37 @@ const DayModal: React.FC<DayModalProps> = ({
   // Simplified modal: only notes textarea + photos
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSave = () => {
-    onSave(logData);
-    onClose();
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveSuccess(false);
+    
+    try {
+      // Simulate a small delay to show the saving state
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      onSave(logData);
+      setSaveSuccess(true);
+      
+      // Close modal after showing success feedback
+      setTimeout(() => {
+        onClose();
+        setSaving(false);
+        setSaveSuccess(false);
+        
+        // Show save toast after modal closes
+        if (onSaveSuccess) {
+          onSaveSuccess();
+        }
+      }, 1000);
+    } catch (error) {
+      console.error('Error saving daily log:', error);
+      setSaving(false);
+      // Could add error feedback here
+    }
   };
 
   const compressImage = async (file: File, quality: number = 0.7): Promise<{ compressed: Blob; originalSize: number; compressedSize: number }> => {
@@ -645,9 +673,28 @@ const DayModal: React.FC<DayModalProps> = ({
               
               <button
                 onClick={handleSave}
-                className="px-6 py-3 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-all duration-300 font-medium"
+                disabled={saving || uploading}
+                className={`px-6 py-3 rounded-xl transition-all duration-300 font-medium flex items-center gap-2 ${
+                  saving
+                    ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                    : saveSuccess
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-pink-600 text-white hover:bg-pink-700'
+                } ${(saving || uploading) ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                Guardar Cambios
+                {saving ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Guardando...
+                  </>
+                ) : saveSuccess ? (
+                  <>
+                    <Icon name="check" className="w-5 h-5" />
+                    ¡Guardado!
+                  </>
+                ) : (
+                  'Guardar Cambios'
+                )}
               </button>
             </div>
           </div>
