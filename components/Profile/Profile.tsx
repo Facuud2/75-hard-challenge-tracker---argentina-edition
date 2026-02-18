@@ -21,11 +21,19 @@ interface UserData {
 // ==========================================
 // Definimos las estructuras de datos. Esto ayuda a que el IDE te avise si cometes errores.
 
+interface BadgePopupData {
+  title: string;
+  value: string | number;
+  description: string;
+  icon?: React.ReactNode;
+}
+
 interface Achievement {
   id: string;
   icon: React.ReactNode;
   name: string;
   unlocked: boolean;
+  popupData: BadgePopupData;
 }
 
 interface ActivityLog {
@@ -74,10 +82,50 @@ const USER_DATA: UserProfile = {
   status: 'online',
   bio: "Transformando disciplina en código. 75 Hard Challenge en proceso.",
   badges: [
-    { id: '1', icon: <Trophy size={16} />, name: 'Gold Medal', unlocked: true },
-    { id: '2', icon: <Award size={16} />, name: '100+ Days', unlocked: true },
-    { id: '3', icon: <Star size={16} />, name: 'Elite', unlocked: true },
-    { id: '4', icon: <Flame size={16} />, name: 'On Fire', unlocked: true },
+    {
+      id: '1',
+      icon: <Trophy size={16} />,
+      name: 'Gold Medal',
+      unlocked: true,
+      popupData: {
+        title: "Trofeo Más Valioso",
+        value: "Platino 2025",
+        description: "Otorgado por completar todos los desafíos del año con calificación perfecta."
+      }
+    },
+    {
+      id: '2',
+      icon: <Award size={16} />,
+      name: '100+ Days',
+      unlocked: true,
+      popupData: {
+        title: "Challenge Más Featured",
+        value: "Reto de Verano",
+        description: "Tu desafío más popular, destacado en la portada durante 3 semanas consecutivas."
+      }
+    },
+    {
+      id: '3',
+      icon: <Star size={16} />,
+      name: 'Elite',
+      unlocked: true,
+      popupData: {
+        title: "Total de Me Gustas",
+        value: "1,245",
+        description: "Acumulados en todos tus comentarios y publicaciones hasta la fecha."
+      }
+    },
+    {
+      id: '4',
+      icon: <Flame size={16} />,
+      name: 'On Fire',
+      unlocked: true,
+      popupData: {
+        title: "Mayor Racha",
+        value: "32 Días",
+        description: "Tu consistencia más larga registrada sin fallar ningún día del reto."
+      }
+    },
   ],
   stats: {
     currentDay: 150,
@@ -191,6 +239,8 @@ const ActivityRow = ({
   </div>
 );
 
+
+
 // ==========================================
 // 4. COMPONENTE PRINCIPAL (PROFILE PAGE)
 // ==========================================
@@ -198,6 +248,7 @@ const ActivityRow = ({
 export default function Profile({ theme = 'dark', isModal = false, onClose }: ProfileProps) {
   const { isLoggedIn, currentUser, login, register, logout } = useAuth();
   const [authView, setAuthView] = useState<'login' | 'register'>('login');
+  const [selectedBadge, setSelectedBadge] = useState<Achievement | null>(null);
 
   // Si no está logueado, mostrar la pantalla de autenticación
   if (!isLoggedIn) {
@@ -343,10 +394,35 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
               <div className={`lg:w-80 ${theme === 'dark' ? 'bg-[#12151a]/30 p-4 rounded border border-gray-800' : 'bg-pink-50 p-4 rounded border border-pink-200'}`}>
                 <h3 className={`${theme === 'dark' ? 'text-blue-400' : 'text-pink-600'} text-lg mb-1`}>Currently Online</h3>
 
-                <div className="flex gap-2 mb-6">
+                {/* Backdrop for closing popover */}
+                {selectedBadge && (
+                  <div
+                    className="fixed inset-0 z-40 cursor-default"
+                    onClick={() => setSelectedBadge(null)}
+                  />
+                )}
+
+                <div className="flex gap-2 mb-6 relative z-50">
                   {badges.map((badge) => (
-                    <div key={badge.id} title={badge.name} className={`${theme === 'dark' ? 'bg-gray-800 p-1 rounded border border-gray-600 hover:border-white text-yellow-500' : 'bg-white p-1 rounded border border-pink-100 text-pink-600'} cursor-help transition-colors`}>
-                      {badge.icon}
+                    <div key={badge.id} className="relative">
+                      <button
+                        onClick={() => setSelectedBadge(selectedBadge?.id === badge.id ? null : badge)}
+                        title={badge.name}
+                        className={`${theme === 'dark' ? 'bg-gray-800 p-1 rounded border border-gray-600 hover:border-white text-yellow-500 hover:bg-gray-700' : 'bg-white p-1 rounded border border-pink-100 text-pink-600 hover:bg-pink-50'} cursor-pointer transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500 ${selectedBadge?.id === badge.id ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-900' : ''}`}
+                      >
+                        {badge.icon}
+                      </button>
+
+                      {/* Popover */}
+                      {selectedBadge?.id === badge.id && (
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 z-50 animate-in fade-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                          <div className="bg-black/90 backdrop-blur-md border border-white/10 p-3 rounded-lg shadow-xl text-center relative after:content-[''] after:absolute after:bottom-full after:left-1/2 after:-translate-x-1/2 after:border-8 after:border-transparent after:border-b-black/90">
+                            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-1">{badge.popupData.title}</h4>
+                            <div className="text-xl font-bold text-blue-400 mb-1">{badge.popupData.value}</div>
+                            <p className="text-[10px] text-gray-300 leading-tight">{badge.popupData.description}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
