@@ -9,7 +9,7 @@ interface UserData {
 interface AuthContextType {
   isLoggedIn: boolean;
   currentUser: UserData | null;
-  login: (email: string, password: string) => void;
+  login: (email: string, password: string) => boolean;
   register: (userData: { name: string; email: string; password: string }) => void;
   logout: () => void;
 }
@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [currentUser]);
 
-  const login = (email: string, password: string) => {
+  const login = (email: string, password: string): boolean => {
     // Validación específica para credenciales de prueba
     if (email === 'correo@correo.com' && password === '123') {
       const userData: UserData = {
@@ -66,11 +66,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         email: email,
         avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'
       };
+      // Delay state update slightly to allow UI to show success message if needed, 
+      // but here we just return true.
       setCurrentUser(userData);
       setIsLoggedIn(true);
+      return true;
     } else {
       // Simulación de login para otras credenciales
-      alert('Credenciales incorrectas. Usa correo@correo.com y contraseña 123');
+      return false;
     }
   };
 
