@@ -16,6 +16,7 @@ import Achievements from './components/Achievements';
 import Profile from './components/Profile/Profile';
 import { useAchievementsSimple, ACHIEVEMENTS } from './hooks/useAchievementsSimple';
 import { useModuleC } from './hooks/useModuleC';
+import { AuthProvider } from './contexts/AuthContext';
 
 const LOCAL_STORAGE_KEY = '75hard_argentina_state_v2';
 
@@ -557,11 +558,12 @@ const App: React.FC = () => {
   const overallProgress = (state.currentDay / 75) * 100;
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${
-      theme === 'dark' 
-        ? 'bg-black text-white selection:bg-pink-900 selection:text-white' 
-        : 'bg-white text-gray-900 selection:bg-pink-100 selection:text-pink-900'
-    }`}>
+    <AuthProvider>
+      <div className={`min-h-screen transition-colors duration-300 ${
+        theme === 'dark' 
+          ? 'bg-black text-white selection:bg-pink-900 selection:text-white' 
+          : 'bg-white text-gray-900 selection:bg-pink-100 selection:text-pink-900'
+      }`}>
       {/* Top Navbar */}
       <header className={`sticky top-0 z-50 backdrop-blur-xl border-b transition-colors duration-300 ${
         theme === 'dark'
@@ -872,7 +874,7 @@ const App: React.FC = () => {
     {/* Achievement Notifications */}
     <achievements.AchievementNotificationComponent />
     </div>
-    
+    </AuthProvider>
   );
 };
 
