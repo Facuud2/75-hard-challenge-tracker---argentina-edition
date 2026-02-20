@@ -2,12 +2,14 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Trophy, Flame, Award, Gamepad2, MapPin, Star, X, User, LogOut } from 'lucide-react';
 import Login from '../Register/Login';
 import Register from '../Register/Register';
+import OnboardingFlow from '../Register/OnboardingFlow';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface ProfileProps {
   theme?: 'dark' | 'light';
   isModal?: boolean;
   onClose?: () => void;
+  onSelectPlan?: (plan: any) => void;
 }
 
 interface UserData {
@@ -365,7 +367,7 @@ const EditProfileModal = ({
   );
 };
 
-export default function Profile({ theme = 'dark', isModal = false, onClose }: ProfileProps) {
+export default function Profile({ theme = 'dark', isModal = false, onClose, onSelectPlan }: ProfileProps) {
   const { isLoggedIn, currentUser, login, register, logout, updateProfile } = useAuth();
   const [authView, setAuthView] = useState<'login' | 'register'>('login');
   const [selectedBadge, setSelectedBadge] = useState<Achievement | null>(null);
@@ -407,6 +409,15 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
             />
           )}
         </div>
+      </div>
+    );
+  }
+
+  // Show onboarding flow if the user is logged in but hasn't completed it
+  if (isLoggedIn && currentUser && !currentUser.onboardingCompleted) {
+    return (
+      <div className={`min-h-screen ${isModal ? 'h-[90vh]' : ''} flex items-center justify-center p-4 ${theme === 'dark' ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
+        <OnboardingFlow theme={theme} onComplete={() => { }} />
       </div>
     );
   }

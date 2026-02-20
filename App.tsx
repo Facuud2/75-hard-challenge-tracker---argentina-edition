@@ -22,7 +22,7 @@ const LOCAL_STORAGE_KEY = '75hard_argentina_state_v2';
 
 const AppContent: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, currentUser } = useAuth();
   const moduleC = useModuleC();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedModalDate, setSelectedModalDate] = useState<string | null>(null);
@@ -457,11 +457,11 @@ const AppContent: React.FC = () => {
     }
   };
 
-  const handleSelectPlan = (plan: any) => {
+  const handleSelectPlan = (plan: any, skipConfirm = false) => {
     console.log('Plan seleccionado:', plan);
 
     // Apply same effect as resetChallenge
-    if (confirm(`¿Estás seguro? Esto reiniciará tu progreso al Día 1 y activará el plan "${plan.name}".`)) {
+    if (skipConfirm || confirm(`¿Estás seguro? Esto reiniciará tu progreso al Día 1 y activará el plan "${plan.name}".`)) {
       const todayStr = getArgentinaDateString();
 
       const mapTaskType = (taskId: string) => {
@@ -630,24 +630,84 @@ const AppContent: React.FC = () => {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-6 sm:p-6 pb-32">
-        {!isLoggedIn ? (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        {!isLoggedIn || (isLoggedIn && !currentUser?.onboardingCompleted) ? (
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-2 sm:px-4 w-full">
             <Icon name="target" className={`w-16 h-16 mb-4 ${theme === 'dark' ? 'text-pink-500/50' : 'text-pink-300'}`} />
             <h2 className={`text-2xl sm:text-3xl font-oswald font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              Selecciona un plan para comenzar
+              {!isLoggedIn ? 'Selecciona un plan para comenzar' : 'Comienza tu Desafío'}
             </h2>
             <p className={`text-base sm:text-lg max-w-md ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-              Inicia sesión o regístrate y elige tu camino hacia la mejor versión de ti mismo.
+              {!isLoggedIn
+                ? 'Inicia sesión o regístrate y elige tu camino hacia la mejor versión de ti mismo.'
+                : 'Debes completar tu información inicial para seleccionar un plan.'}
             </p>
-            <button
-              onClick={() => setIsProfileOpen(true)}
-              className={`mt-6 px-6 py-3 rounded-xl font-bold uppercase tracking-wider transition-all duration-300 ${theme === 'dark'
-                ? 'bg-pink-600 text-white hover:bg-pink-500 shadow-lg shadow-pink-600/20'
-                : 'bg-pink-500 text-white hover:bg-pink-600 shadow-lg shadow-pink-500/20'
-                }`}
-            >
-              Iniciar Sesión
-            </button>
+
+            {!isLoggedIn ? (
+              <button
+                onClick={() => setIsProfileOpen(true)}
+                className={`mt-6 px-6 py-3 rounded-xl font-bold uppercase tracking-wider transition-all duration-300 ${theme === 'dark'
+                  ? 'bg-pink-600 text-white hover:bg-pink-500 shadow-lg shadow-pink-600/20'
+                  : 'bg-pink-500 text-white hover:bg-pink-600 shadow-lg shadow-pink-500/20'
+                  }`}
+              >
+                Iniciar Sesión
+              </button>
+            ) : (
+              <div className="w-full max-w-5xl mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500 text-left">
+                <h3 className={`text-xl font-bold mb-6 text-center ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Planes Disponibles</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {CHALLENGE_PLANS.map((plan) => (
+                    <div
+                      key={plan.id}
+                      onClick={() => setIsProfileOpen(true)}
+                      className={`p-5 sm:p-6 rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:-translate-y-1 flex flex-col h-full ${theme === 'dark' ? 'border-gray-800 bg-gray-900/50 hover:border-pink-500 hover:shadow-[0_0_20px_rgba(236,72,153,0.15)]' : 'border-pink-100 bg-white shadow-sm hover:border-pink-400 hover:shadow-lg'}`}
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className={`p-2 rounded-xl ${theme === 'dark' ? 'bg-gray-800' : 'bg-pink-50'}`}>
+                          <Icon name="target" className={`w-6 h-6 flex-shrink-0 ${theme === 'dark' ? 'text-pink-400' : 'text-pink-500'}`} />
+                        </div>
+                        <h4 className={`text-lg sm:text-xl font-bold leading-tight ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{plan.name}</h4>
+                      </div>
+
+                      <p className={`text-sm mb-6 flex-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{plan.description}</p>
+
+                      <div className="space-y-3 mb-6">
+                        {plan.tasks.slice(0, 3).map(task => (
+                          <div key={task.id} className="flex items-start gap-2 text-sm">
+                            <Icon name={task.icon} className={`w-4 h-4 mt-0.5 flex-shrink-0 ${theme === 'dark' ? 'text-pink-400/70 text-pink-400' : 'text-pink-500/70 text-pink-500'}`} />
+                            <span className={`leading-snug ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{task.label}</span>
+                          </div>
+                        ))}
+                        {plan.tasks.length > 3 && (
+                          <div className={`text-xs ml-6 font-medium ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+                            +{plan.tasks.length - 3} tareas más...
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mt-auto pt-4 border-t border-pink-500/20 flex justify-between items-center">
+                        <span className={`inline-block px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest ${theme === 'dark' ? 'bg-pink-500/20 text-pink-300' : 'bg-pink-100 text-pink-600'}`}>
+                          {plan.duration} DÍAS
+                        </span>
+                        <Icon name="chevron-right" className={`w-4 h-4 ${theme === 'dark' ? 'text-gray-600 group-hover:text-pink-400' : 'text-gray-400 group-hover:text-pink-500'}`} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-center mt-12 mb-8">
+                  <button
+                    onClick={() => setIsProfileOpen(true)}
+                    className={`px-8 py-4 rounded-xl font-bold uppercase tracking-wider transition-all duration-300 shadow-xl hover:-translate-y-1 ${theme === 'dark'
+                      ? 'bg-gradient-to-r from-pink-600 to-pink-500 text-white shadow-pink-900/40 hover:shadow-pink-900/60'
+                      : 'bg-gradient-to-r from-pink-500 to-pink-400 text-white shadow-pink-200 hover:shadow-pink-300'
+                      }`}
+                  >
+                    Completar Registro para Seleccionar
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-8">
@@ -828,7 +888,7 @@ const AppContent: React.FC = () => {
           <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsProfileOpen(false)} />
             <div className="relative w-full max-w-4xl h-[90vh] max-h-[90vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300">
-              <Profile isModal theme={theme} onClose={() => setIsProfileOpen(false)} />
+              <Profile isModal theme={theme} onClose={() => setIsProfileOpen(false)} onSelectPlan={(plan) => handleSelectPlan(plan, true)} />
             </div>
           </div>
         )}

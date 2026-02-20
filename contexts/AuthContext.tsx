@@ -6,6 +6,9 @@ interface UserData {
   avatarUrl?: string;
   bio?: string;
   location?: string;
+  height?: number;
+  weight?: number;
+  onboardingCompleted?: boolean;
 }
 
 interface AuthContextType {
@@ -67,7 +70,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const userData: UserData = {
         name: 'Usuario Demo',
         email: email,
-        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'
+        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+        onboardingCompleted: true // Demo user skips onboarding
       };
       // Delay state update slightly to allow UI to show success message if needed, 
       // but here we just return true.
@@ -85,7 +89,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const newUser: UserData = {
       name: userData.name,
       email: userData.email,
-      avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + userData.name
+      avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + userData.name,
+      onboardingCompleted: false // Require onboarding for new users
     };
     setCurrentUser(newUser);
     setIsLoggedIn(true);
