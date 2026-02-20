@@ -16,12 +16,13 @@ import Achievements from './components/Achievements';
 import Profile from './components/Profile/Profile';
 import { useAchievementsSimple, ACHIEVEMENTS } from './hooks/useAchievementsSimple';
 import { useModuleC } from './hooks/useModuleC';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const LOCAL_STORAGE_KEY = '75hard_argentina_state_v2';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
+  const { isLoggedIn } = useAuth();
   const moduleC = useModuleC();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedModalDate, setSelectedModalDate] = useState<string | null>(null);
@@ -558,77 +559,95 @@ const App: React.FC = () => {
   const overallProgress = (state.currentDay / 75) * 100;
 
   return (
-    <AuthProvider>
-      <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark'
-          ? 'bg-black text-white selection:bg-pink-900 selection:text-white'
-          : 'bg-white text-gray-900 selection:bg-pink-100 selection:text-pink-900'
+    <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark'
+      ? 'bg-black text-white selection:bg-pink-900 selection:text-white'
+      : 'bg-white text-gray-900 selection:bg-pink-100 selection:text-pink-900'
+      }`}>
+      {/* Top Navbar */}
+      <header className={`sticky top-0 z-50 backdrop-blur-xl border-b transition-colors duration-300 ${theme === 'dark'
+        ? 'bg-black/80 border-pink-500/20'
+        : 'bg-white/80 border-pink-200/50'
         }`}>
-        {/* Top Navbar */}
-        <header className={`sticky top-0 z-50 backdrop-blur-xl border-b transition-colors duration-300 ${theme === 'dark'
-            ? 'bg-black/80 border-pink-500/20'
-            : 'bg-white/80 border-pink-200/50'
-          }`}>
-          <div className="max-w-6xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
-            <div className="flex items-center gap-1 sm:gap-2">
-              <Icon name="flame" className={`w-4 h-4 sm:w-5 sm:h-5 fill-current transition-colors duration-300 ${theme === 'dark' ? 'text-pink-400' : 'text-pink-500'
-                }`} />
-              <h1 className={`text-sm sm:text-lg font-oswald font-bold tracking-tight italic transition-colors duration-300 ${theme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`}>
-                <span className="mr-1 sm:mr-2">75 DAYS</span>
-                <span className={`${theme === 'dark' ? 'text-pink-400' : 'text-pink-600'} font-oswald font-bold uppercase text-xs sm:text-sm`}>
-                  {activePlanId ? activePlanId.toUpperCase() : 'HARD'}
-                </span>
-              </h1>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="hidden lg:block">
-                <Timer theme={theme} />
-              </div>
-              {/* Debug Button - Plan Selector */}
-              <button
-                onClick={() => setIsPlanSelectorOpen(true)}
-                className={`px-3 py-2 sm:px-3 sm:py-2 rounded-lg text-xs font-medium transition-all duration-300 ${theme === 'dark'
-                    ? 'bg-pink-600/20 text-pink-300 hover:bg-pink-600/30 border border-pink-500/30'
-                    : 'bg-pink-100 text-pink-600 hover:bg-pink-200 border border-pink-300'
-                  }`}
-                title="Planes"
-              >
-                <Icon name="target" className="w-4 h-4 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline ml-1">Planes</span>
-              </button>
-
-              {/* Achievements Button */}
-              <button
-                onClick={() => setIsAchievementsOpen(true)}
-                className={`px-3 py-2 sm:px-3 sm:py-2 rounded-lg text-xs font-medium transition-all duration-300 ${theme === 'dark'
-                    ? 'bg-purple-600/20 text-purple-300 hover:bg-purple-600/30 border border-purple-500/30'
-                    : 'bg-purple-100 text-purple-600 hover:bg-purple-200 border border-purple-300'
-                  }`}
-                title="Logros"
-              >
-                <Icon name="trophy" className="w-4 h-4 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline ml-1">Logros</span>
-              </button>
-              {/* Profile Button */}
-              <button
-                onClick={() => setIsProfileOpen(true)}
-                title="Ver Perfil"
-                className={`px-3 py-2 sm:px-3 sm:py-2 rounded-lg text-xs font-medium transition-all duration-300 ${theme === 'dark'
-                    ? 'bg-slate-800/20 text-slate-200 hover:bg-slate-800/30 border border-slate-700/30'
-                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-200'
-                  }`}
-              >
-                <Icon name="user" className="w-4 h-4 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline ml-1">Perfil</span>
-              </button>
-
-              <ThemeToggle theme={theme} onToggle={toggleTheme} />
-            </div>
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Icon name="flame" className={`w-4 h-4 sm:w-5 sm:h-5 fill-current transition-colors duration-300 ${theme === 'dark' ? 'text-pink-400' : 'text-pink-500'
+              }`} />
+            <h1 className={`text-sm sm:text-lg font-oswald font-bold tracking-tight italic transition-colors duration-300 ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
+              <span className="mr-1 sm:mr-2">75 DAYS</span>
+              <span className={`${theme === 'dark' ? 'text-pink-400' : 'text-pink-600'} font-oswald font-bold uppercase text-xs sm:text-sm`}>
+                {activePlanId ? activePlanId.toUpperCase() : 'HARD'}
+              </span>
+            </h1>
           </div>
-        </header>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden lg:block">
+              <Timer theme={theme} />
+            </div>
+            {/* Debug Button - Plan Selector */}
+            <button
+              onClick={() => setIsPlanSelectorOpen(true)}
+              className={`px-3 py-2 sm:px-3 sm:py-2 rounded-lg text-xs font-medium transition-all duration-300 ${theme === 'dark'
+                ? 'bg-pink-600/20 text-pink-300 hover:bg-pink-600/30 border border-pink-500/30'
+                : 'bg-pink-100 text-pink-600 hover:bg-pink-200 border border-pink-300'
+                }`}
+              title="Planes"
+            >
+              <Icon name="target" className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline ml-1">Planes</span>
+            </button>
 
-        <main className="max-w-6xl mx-auto px-4 py-6 sm:p-6 pb-32">
-          {/* Dashboard Grid */}
+            {/* Achievements Button */}
+            <button
+              onClick={() => setIsAchievementsOpen(true)}
+              className={`px-3 py-2 sm:px-3 sm:py-2 rounded-lg text-xs font-medium transition-all duration-300 ${theme === 'dark'
+                ? 'bg-purple-600/20 text-purple-300 hover:bg-purple-600/30 border border-purple-500/30'
+                : 'bg-purple-100 text-purple-600 hover:bg-purple-200 border border-purple-300'
+                }`}
+              title="Logros"
+            >
+              <Icon name="trophy" className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline ml-1">Logros</span>
+            </button>
+            {/* Profile Button */}
+            <button
+              onClick={() => setIsProfileOpen(true)}
+              title="Ver Perfil"
+              className={`px-3 py-2 sm:px-3 sm:py-2 rounded-lg text-xs font-medium transition-all duration-300 ${theme === 'dark'
+                ? 'bg-slate-800/20 text-slate-200 hover:bg-slate-800/30 border border-slate-700/30'
+                : 'bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-200'
+                }`}
+            >
+              <Icon name="user" className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline ml-1">Perfil</span>
+            </button>
+
+            <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-6 sm:p-6 pb-32">
+        {!isLoggedIn ? (
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+            <Icon name="target" className={`w-16 h-16 mb-4 ${theme === 'dark' ? 'text-pink-500/50' : 'text-pink-300'}`} />
+            <h2 className={`text-2xl sm:text-3xl font-oswald font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+              Selecciona un plan para comenzar
+            </h2>
+            <p className={`text-base sm:text-lg max-w-md ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+              Inicia sesión o regístrate y elige tu camino hacia la mejor versión de ti mismo.
+            </p>
+            <button
+              onClick={() => setIsProfileOpen(true)}
+              className={`mt-6 px-6 py-3 rounded-xl font-bold uppercase tracking-wider transition-all duration-300 ${theme === 'dark'
+                ? 'bg-pink-600 text-white hover:bg-pink-500 shadow-lg shadow-pink-600/20'
+                : 'bg-pink-500 text-white hover:bg-pink-600 shadow-lg shadow-pink-500/20'
+                }`}
+            >
+              Iniciar Sesión
+            </button>
+          </div>
+        ) : (
           <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-8">
 
             {/* Left Column: Stats & Info (Sticky on desktop) */}
@@ -636,8 +655,8 @@ const App: React.FC = () => {
 
               {/* Main Day Card */}
               <div className={`rounded-3xl p-8 border relative overflow-hidden group backdrop-blur-sm transition-colors duration-300 ${theme === 'dark'
-                  ? 'bg-gradient-to-br from-pink-950/50 to-black/50 border-pink-500/20'
-                  : 'bg-gradient-to-br from-pink-50 to-white border-pink-200'
+                ? 'bg-gradient-to-br from-pink-950/50 to-black/50 border-pink-500/20'
+                : 'bg-gradient-to-br from-pink-50 to-white border-pink-200'
                 }`}>
                 <div className="relative z-10">
                   <span className={`font-bold text-xs uppercase tracking-widest transition-colors duration-300 ${theme === 'dark' ? 'text-pink-400' : 'text-pink-600'
@@ -657,8 +676,8 @@ const App: React.FC = () => {
                         }`}>{Math.round(overallProgress)}%</span>
                     </div>
                     <div className={`h-1.5 w-full rounded-full overflow-hidden border transition-colors duration-300 ${theme === 'dark'
-                        ? 'bg-black/50 border-pink-500/20'
-                        : 'bg-pink-100 border-pink-200'
+                      ? 'bg-black/50 border-pink-500/20'
+                      : 'bg-pink-100 border-pink-200'
                       }`}>
                       <div className={`h-full rounded-full transition-colors duration-300 ${theme === 'dark' ? 'bg-pink-400' : 'bg-pink-500'
                         }`} style={{ width: `${overallProgress}%` }} />
@@ -668,15 +687,15 @@ const App: React.FC = () => {
 
                 {/* Subtle background glow */}
                 <div className={`absolute -top-20 -right-20 w-64 h-64 blur-[80px] rounded-full pointer-events-none transition-opacity duration-300 ${theme === 'dark'
-                    ? 'bg-gradient-to-br from-pink-400/20 to-pink-600/10'
-                    : 'bg-gradient-to-br from-pink-200/15 to-pink-300/10'
+                  ? 'bg-gradient-to-br from-pink-400/20 to-pink-600/10'
+                  : 'bg-gradient-to-br from-pink-200/15 to-pink-300/10'
                   }`} />
               </div>
 
               {/* Daily Status Card */}
               <div className={`bg-gradient-to-br rounded-3xl p-6 border flex flex-col justify-between min-h-[160px] backdrop-blur-sm transition-colors duration-300 ${theme === 'dark'
-                  ? 'from-pink-950/30 to-black/30 border-pink-500/15'
-                  : 'from-pink-50 to-white border-pink-200'
+                ? 'from-pink-950/30 to-black/30 border-pink-500/15'
+                : 'from-pink-50 to-white border-pink-200'
                 }`}>
                 <div>
                   <span className={`font-bold text-xs uppercase tracking-widest transition-colors duration-300 ${theme === 'dark' ? 'text-pink-400' : 'text-pink-600'
@@ -728,8 +747,8 @@ const App: React.FC = () => {
               <button
                 onClick={resetChallenge}
                 className={`w-full py-4 rounded-xl border transition-all text-xs font-bold uppercase tracking-widest backdrop-blur-sm ${theme === 'dark'
-                    ? 'border-pink-500/30 text-pink-300 hover:text-white hover:border-pink-400 hover:bg-pink-950/50'
-                    : 'border-pink-200 text-pink-600 hover:text-white hover:border-pink-400 hover:bg-pink-500'
+                  ? 'border-pink-500/30 text-pink-300 hover:text-white hover:border-pink-400 hover:bg-pink-950/50'
+                  : 'border-pink-200 text-pink-600 hover:text-white hover:border-pink-400 hover:bg-pink-500'
                   }`}
               >
                 Reiniciar Reto
@@ -757,93 +776,102 @@ const App: React.FC = () => {
             </section>
 
           </div>
+        )}
 
-          {/* Modal para día seleccionado */}
-          {isModalOpen && selectedModalDate && (
-            <DayModal
-              theme={theme}
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              date={selectedModalDate}
-              dailyLog={moduleC.getDailyLog(selectedModalDate)}
-              onSave={moduleC.saveDailyLog}
-              onSaveSuccess={() => showSaveToast(selectedModalDate)}
-              photos={moduleC.getPhotosForDate(selectedModalDate)}
-              onPhotoUpload={moduleC.uploadPhoto}
-              onPhotoDelete={moduleC.deletePhoto}
-            />
-          )}
-
-          {/* Plan Selector Modal */}
-          <PlanSelector
+        {/* Modal para día seleccionado */}
+        {isModalOpen && selectedModalDate && (
+          <DayModal
             theme={theme}
-            isOpen={isPlanSelectorOpen}
-            onClose={() => setIsPlanSelectorOpen(false)}
-            onSelectPlan={handleSelectPlan}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            date={selectedModalDate}
+            dailyLog={moduleC.getDailyLog(selectedModalDate)}
+            onSave={moduleC.saveDailyLog}
+            onSaveSuccess={() => showSaveToast(selectedModalDate)}
+            photos={moduleC.getPhotosForDate(selectedModalDate)}
+            onPhotoUpload={moduleC.uploadPhoto}
+            onPhotoDelete={moduleC.deletePhoto}
           />
+        )}
 
-          {/* Achievements Modal */}
-          <Achievements
-            theme={theme}
-            isOpen={isAchievementsOpen}
-            onClose={() => setIsAchievementsOpen(false)}
-            userProgress={{
-              currentDay: state.currentDay,
-              currentStreak: calculateCurrentStreak(),
-              totalDaysCompleted: state.history.filter(h =>
-                h.tasks.some(t => t.completed)
-              ).length,
-              perfectDays: state.history.filter(h =>
-                h.tasks.every(t => t.completed)
-              ).length,
-              achievements: [] // TODO: Load from localStorage
-            }}
-          />
+        {/* Plan Selector Modal */}
+        <PlanSelector
+          theme={theme}
+          isOpen={isPlanSelectorOpen}
+          onClose={() => setIsPlanSelectorOpen(false)}
+          onSelectPlan={handleSelectPlan}
+          isLoggedIn={isLoggedIn}
+        />
 
-          {/* Profile Modal (renders Profile inside a centered modal card) */}
-          {isProfileOpen && (
-            <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsProfileOpen(false)} />
-              <div className="relative w-full max-w-4xl h-[90vh] max-h-[90vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300">
-                <Profile isModal theme={theme} onClose={() => setIsProfileOpen(false)} />
-              </div>
+        {/* Achievements Modal */}
+        <Achievements
+          theme={theme}
+          isOpen={isAchievementsOpen}
+          onClose={() => setIsAchievementsOpen(false)}
+          userProgress={{
+            currentDay: state.currentDay,
+            currentStreak: calculateCurrentStreak(),
+            totalDaysCompleted: state.history.filter(h =>
+              h.tasks.some(t => t.completed)
+            ).length,
+            perfectDays: state.history.filter(h =>
+              h.tasks.every(t => t.completed)
+            ).length,
+            achievements: [] // TODO: Load from localStorage
+          }}
+        />
+
+        {/* Profile Modal (renders Profile inside a centered modal card) */}
+        {isProfileOpen && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsProfileOpen(false)} />
+            <div className="relative w-full max-w-4xl h-[90vh] max-h-[90vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300">
+              <Profile isModal theme={theme} onClose={() => setIsProfileOpen(false)} />
             </div>
-          )}
-        </main>
-
-        {/* Mobile Bottom Bar (Optional, keeps mobile app feel) */}
-        <div className={`lg:hidden fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t p-4 z-50 pb-safe transition-colors duration-300 ${theme === 'dark'
-            ? 'bg-gradient-to-t from-black/90 to-pink-950/80 border-pink-500/20'
-            : 'bg-gradient-to-t from-white/90 to-pink-50/80 border-pink-200'
-          }`}>
-          <div className="flex justify-around items-center max-w-md mx-auto">
-            <button className={`flex flex-col items-center gap-1 transition-colors duration-300 ${theme === 'dark' ? 'text-pink-400' : 'text-pink-500'
-              }`}>
-              <Icon name="flame" className="w-6 h-6" />
-              <span className="text-[10px] font-bold uppercase">Progreso</span>
-            </button>
-            <div className={`w-px h-8 transition-colors duration-300 ${theme === 'dark' ? 'bg-pink-500/20' : 'bg-pink-200'
-              }`} />
-            <button className={`flex flex-col items-center gap-1 transition-colors duration-300 ${theme === 'dark' ? 'text-pink-300' : 'text-pink-600'
-              }`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <span className="text-lg font-oswald font-bold text-white leading-none">{state.currentDay}</span>
-              <span className="text-[10px] font-bold uppercase">Día</span>
-            </button>
-            <div className={`w-px h-8 transition-colors duration-300 ${theme === 'dark' ? 'bg-pink-500/20' : 'bg-pink-200'
-              }`} />
-            <button className={`flex flex-col items-center gap-1 transition-colors duration-300 ${theme === 'dark' ? 'text-pink-300 hover:text-pink-400' : 'text-pink-600 hover:text-pink-500'
-              }`} onClick={resetChallenge}>
-              <Icon name="refresh" className="w-5 h-5" />
-              <span className="text-[10px] font-bold uppercase">Reiniciar</span>
-            </button>
           </div>
+        )}
+      </main>
+
+      {/* Mobile Bottom Bar (Optional, keeps mobile app feel) */}
+      <div className={`lg:hidden fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t p-4 z-50 pb-safe transition-colors duration-300 ${theme === 'dark'
+        ? 'bg-gradient-to-t from-black/90 to-pink-950/80 border-pink-500/20'
+        : 'bg-gradient-to-t from-white/90 to-pink-50/80 border-pink-200'
+        }`}>
+        <div className="flex justify-around items-center max-w-md mx-auto">
+          <button className={`flex flex-col items-center gap-1 transition-colors duration-300 ${theme === 'dark' ? 'text-pink-400' : 'text-pink-500'
+            }`}>
+            <Icon name="flame" className="w-6 h-6" />
+            <span className="text-[10px] font-bold uppercase">Progreso</span>
+          </button>
+          <div className={`w-px h-8 transition-colors duration-300 ${theme === 'dark' ? 'bg-pink-500/20' : 'bg-pink-200'
+            }`} />
+          <button className={`flex flex-col items-center gap-1 transition-colors duration-300 ${theme === 'dark' ? 'text-pink-300' : 'text-pink-600'
+            }`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <span className="text-lg font-oswald font-bold text-white leading-none">{state.currentDay}</span>
+            <span className="text-[10px] font-bold uppercase">Día</span>
+          </button>
+          <div className={`w-px h-8 transition-colors duration-300 ${theme === 'dark' ? 'bg-pink-500/20' : 'bg-pink-200'
+            }`} />
+          <button className={`flex flex-col items-center gap-1 transition-colors duration-300 ${theme === 'dark' ? 'text-pink-300 hover:text-pink-400' : 'text-pink-600 hover:text-pink-500'
+            }`} onClick={resetChallenge}>
+            <Icon name="refresh" className="w-5 h-5" />
+            <span className="text-[10px] font-bold uppercase">Reiniciar</span>
+          </button>
         </div>
-
-        <InstallPWA />
-
-        {/* Achievement Notifications */}
-        <achievements.AchievementNotificationComponent />
       </div>
+
+      <InstallPWA />
+
+      {/* Achievement Notifications */}
+      <achievements.AchievementNotificationComponent />
+    </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 };
