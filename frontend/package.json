@@ -1,0 +1,56 @@
+{
+  "name": "75-hard-challenge-tracker---argentina-edition",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron": "electron . --no-sandbox",
+    "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron . --no-sandbox\"",
+    "electron-dev-safe": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron . --no-sandbox --disable-web-security\"",
+    "electron-build": "npm run build && electron-builder",
+    "dist": "npm run build && electron-builder --publish=never"
+  },
+  "build": {
+    "appId": "com.75hard.argentina",
+    "productName": "75 Hard Challenge Tracker",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "node_modules/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.health-and-fitness",
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1",
+    "lucide-react": "^0.562.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-hot-toast": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "electron": "^33.2.0",
+    "electron-builder": "^26.4.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0",
+    "vite-plugin-pwa": "^1.2.0",
+    "wait-on": "^8.0.1"
+  }
+}
