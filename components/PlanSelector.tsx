@@ -20,6 +20,7 @@ interface PlanSelectorProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectPlan: (plan: ChallengePlan) => void;
+  isLoggedIn?: boolean;
 }
 
 const CHALLENGE_PLANS: ChallengePlan[] = [
@@ -82,7 +83,7 @@ const CHALLENGE_PLANS: ChallengePlan[] = [
   }
 ];
 
-const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onSelectPlan }) => {
+const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onSelectPlan, isLoggedIn = false }) => {
   const [selectedPlan, setSelectedPlan] = useState<ChallengePlan | null>(null);
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [customTasks, setCustomTasks] = useState<string[]>([]);
@@ -105,7 +106,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
         const selectedTasks = JSON.parse(savedSelectedTasks);
         setCustomTasks(selectedTasks);
       }
-      
+
       const savedCustomDefinitions = localStorage.getItem('75hard_custom_task_definitions');
       if (savedCustomDefinitions) {
         const definitions = JSON.parse(savedCustomDefinitions);
@@ -161,6 +162,10 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
   };
 
   const handleMobilePlanConfirm = (plan: ChallengePlan) => {
+    if (!isLoggedIn) {
+      alert("Debes iniciar sesión para seleccionar un plan.");
+      return;
+    }
     setSelectedPlan(plan);
     setMobilePlanDetails(null);
     // Confirmar el plan y cerrar el modal como en desktop
@@ -173,16 +178,16 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
   };
 
   const toggleCustomTask = (taskId: string) => {
-    setCustomTasks(prev => 
-      prev.includes(taskId) 
+    setCustomTasks(prev =>
+      prev.includes(taskId)
         ? prev.filter(id => id !== taskId)
         : [...prev, taskId]
     );
   };
 
   const updateTaskDefinition = (taskId: string, field: 'label' | 'description', value: string) => {
-    setCustomTaskDefinitions(prev => 
-      prev.map(task => 
+    setCustomTaskDefinitions(prev =>
+      prev.map(task =>
         task.id === taskId ? { ...task, [field]: value } : task
       )
     );
@@ -206,6 +211,10 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
   };
 
   const confirmCustomPlan = () => {
+    if (!isLoggedIn) {
+      alert("Debes iniciar sesión para seleccionar un plan.");
+      return;
+    }
     if (selectedPlan && customTasks.length > 0) {
       const customPlan = {
         ...selectedPlan,
@@ -234,23 +243,21 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
     return (
       <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
         {/* Backdrop */}
-        <div 
+        <div
           className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={handleMobilePlanClose}
         />
-        
+
         {/* Popup Content */}
-        <div className={`relative w-full max-w-sm max-h-[80vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 ${
-          theme === 'dark'
-            ? 'bg-gradient-to-br from-pink-950/95 to-black/95 border-pink-500/20'
-            : 'bg-gradient-to-br from-pink-50/95 to-white/95 border-pink-200'
-        }`}>
+        <div className={`relative w-full max-w-sm max-h-[80vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 ${theme === 'dark'
+          ? 'bg-gradient-to-br from-pink-950/95 to-black/95 border-pink-500/20'
+          : 'bg-gradient-to-br from-pink-50/95 to-white/95 border-pink-200'
+          }`}>
           {/* Background Glow */}
-          <div className={`absolute -top-20 -right-20 w-64 h-64 blur-[80px] rounded-full pointer-events-none transition-opacity duration-300 ${
-            theme === 'dark'
-              ? 'bg-gradient-to-br from-pink-400/20 to-pink-600/10'
-              : 'bg-gradient-to-br from-pink-200/15 to-pink-300/10'
-          }`} />
+          <div className={`absolute -top-20 -right-20 w-64 h-64 blur-[80px] rounded-full pointer-events-none transition-opacity duration-300 ${theme === 'dark'
+            ? 'bg-gradient-to-br from-pink-400/20 to-pink-600/10'
+            : 'bg-gradient-to-br from-pink-200/15 to-pink-300/10'
+            }`} />
 
           <div className="relative z-10 h-full flex flex-col">
             {/* Header */}
@@ -261,14 +268,13 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                   {mobilePlanDetails.name}
                 </h3>
               </div>
-              
+
               <button
                 onClick={handleMobilePlanClose}
-                className={`p-2 rounded-xl transition-all duration-300 ${
-                  theme === 'dark' 
-                    ? 'hover:bg-pink-950/50 text-pink-300 hover:text-pink-200 border border-pink-500/20' 
-                    : 'hover:bg-pink-100 text-pink-600 hover:text-pink-500 border border-pink-200'
-                }`}
+                className={`p-2 rounded-xl transition-all duration-300 ${theme === 'dark'
+                  ? 'hover:bg-pink-950/50 text-pink-300 hover:text-pink-200 border border-pink-500/20'
+                  : 'hover:bg-pink-100 text-pink-600 hover:text-pink-500 border border-pink-200'
+                  }`}
               >
                 <Icon name="x" className="w-4 h-4" />
               </button>
@@ -278,11 +284,10 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
             <div className="flex-1 overflow-y-auto p-4 max-h-[calc(80vh-160px)]">
               <div className="space-y-4">
                 {/* Plan Description */}
-                <div className={`p-3 rounded-xl ${
-                  theme === 'dark' 
-                    ? 'bg-pink-950/20 border-pink-500/20' 
-                    : 'bg-pink-50/20 border-pink-200'
-                }`}>
+                <div className={`p-3 rounded-xl ${theme === 'dark'
+                  ? 'bg-pink-950/20 border-pink-500/20'
+                  : 'bg-pink-50/20 border-pink-200'
+                  }`}>
                   <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
                     {mobilePlanDetails.description}
                   </p>
@@ -303,17 +308,15 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                   </h4>
                   <div className="space-y-2">
                     {mobilePlanDetails.tasks.map((task) => (
-                      <div key={task.id} className={`p-2 rounded-xl border ${
-                        theme === 'dark'
-                          ? 'border-gray-600 bg-gray-800/50'
-                          : 'border-gray-300 bg-gray-50/50'
-                      }`}>
+                      <div key={task.id} className={`p-2 rounded-xl border ${theme === 'dark'
+                        ? 'border-gray-600 bg-gray-800/50'
+                        : 'border-gray-300 bg-gray-50/50'
+                        }`}>
                         <div className="flex items-start gap-2">
-                          <Icon 
-                            name={task.icon} 
-                            className={`w-4 h-4 mt-0.5 ${
-                              theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                            }`} 
+                          <Icon
+                            name={task.icon}
+                            className={`w-4 h-4 mt-0.5 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                              }`}
                           />
                           <div className="flex-1">
                             <p className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
@@ -335,24 +338,25 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
             <div className="flex gap-3 p-4 border-t border-pink-500/20">
               <button
                 onClick={handleMobilePlanClose}
-                className={`flex-1 px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
-                  theme === 'dark' 
-                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
-                }`}
+                className={`flex-1 px-4 py-3 rounded-xl transition-all duration-300 font-medium ${theme === 'dark'
+                  ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                  }`}
               >
                 Cancelar
               </button>
-              
+
               <button
                 onClick={() => handleMobilePlanConfirm(mobilePlanDetails)}
-                className={`flex-1 px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
-                  theme === 'dark'
+                disabled={!isLoggedIn}
+                className={`flex-1 px-4 py-3 rounded-xl transition-all duration-300 font-medium ${!isLoggedIn
+                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                  : theme === 'dark'
                     ? 'bg-pink-600 text-white hover:bg-pink-700'
                     : 'bg-pink-500 text-white hover:bg-pink-600'
-                }`}
+                  }`}
               >
-                Seleccionar Plan
+                {isLoggedIn ? 'Seleccionar Plan' : 'Inicia Sesión para Seleccionar'}
               </button>
             </div>
           </div>
@@ -364,24 +368,24 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
   const getPlanColor = (color: string) => {
     switch (color) {
       case 'blue':
-        return theme === 'dark' 
-          ? 'from-blue-900/80 to-blue-950/80 border-blue-500/40' 
+        return theme === 'dark'
+          ? 'from-blue-900/80 to-blue-950/80 border-blue-500/40'
           : 'from-blue-100/80 to-blue-50/80 border-blue-500/40';
       case 'purple':
-        return theme === 'dark' 
-          ? 'from-purple-900/80 to-purple-950/80 border-purple-500/40' 
+        return theme === 'dark'
+          ? 'from-purple-900/80 to-purple-950/80 border-purple-500/40'
           : 'from-purple-100/80 to-purple-50/80 border-purple-500/40';
       case 'red':
-        return theme === 'dark' 
-          ? 'from-red-900/80 to-red-950/80 border-red-500/40' 
+        return theme === 'dark'
+          ? 'from-red-900/80 to-red-950/80 border-red-500/40'
           : 'from-red-100/80 to-red-50/80 border-red-500/40';
       case 'green':
-        return theme === 'dark' 
-          ? 'from-green-900/80 to-green-950/80 border-green-500/40' 
+        return theme === 'dark'
+          ? 'from-green-900/80 to-green-950/80 border-green-500/40'
           : 'from-green-100/80 to-green-50/80 border-green-500/40';
       default:
-        return theme === 'dark' 
-          ? 'from-gray-900/80 to-gray-950/80 border-gray-500/40' 
+        return theme === 'dark'
+          ? 'from-gray-900/80 to-gray-950/80 border-gray-500/40'
           : 'from-gray-100/80 to-gray-50/80 border-gray-500/40';
     }
   };
@@ -404,43 +408,39 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={handleClose}
       />
-      
+
       {/* Modal Content */}
-      <div className={`relative w-full max-w-6xl max-h-[calc(100vh-140px)] sm:max-h-[90vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 ${
-        theme === 'dark'
-          ? 'bg-gradient-to-br from-pink-950/95 to-black/95 border-pink-500/20'
-          : 'bg-gradient-to-br from-pink-50/95 to-white/95 border-pink-200'
-      }`}>
+      <div className={`relative w-full max-w-6xl max-h-[calc(100vh-140px)] sm:max-h-[90vh] overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 ${theme === 'dark'
+        ? 'bg-gradient-to-br from-pink-950/95 to-black/95 border-pink-500/20'
+        : 'bg-gradient-to-br from-pink-50/95 to-white/95 border-pink-200'
+        }`}>
         {/* Background Glow */}
-        <div className={`absolute -top-40 -right-40 w-96 h-96 blur-[120px] rounded-full pointer-events-none transition-opacity duration-300 ${
-          theme === 'dark'
-            ? 'bg-gradient-to-br from-pink-400/20 to-pink-600/10'
-            : 'bg-gradient-to-br from-pink-200/15 to-pink-300/10'
-        }`} />
+        <div className={`absolute -top-40 -right-40 w-96 h-96 blur-[120px] rounded-full pointer-events-none transition-opacity duration-300 ${theme === 'dark'
+          ? 'bg-gradient-to-br from-pink-400/20 to-pink-600/10'
+          : 'bg-gradient-to-br from-pink-200/15 to-pink-300/10'
+          }`} />
 
         <div className="relative z-10 h-full flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-4 sm:p-6 border-b border-pink-500/20">
             <div className="flex items-center gap-2 sm:gap-3">
               <Icon name="target" className="w-5 h-5 sm:w-6 sm:h-6 text-pink-500" />
-              <h2 className={`text-lg sm:text-2xl font-bold transition-colors duration-300 ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`}>
+              <h2 className={`text-lg sm:text-2xl font-bold transition-colors duration-300 ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>
                 Seleccionar Plan de Desafío
               </h2>
             </div>
-            
+
             <button
               onClick={handleClose}
-              className={`p-2 sm:p-3 rounded-xl transition-all duration-300 ${
-                theme === 'dark' 
-                  ? 'hover:bg-pink-950/50 text-pink-300 hover:text-pink-200 border border-pink-500/20' 
-                  : 'hover:bg-pink-100 text-pink-600 hover:text-pink-500 border border-pink-200'
-              }`}
+              className={`p-2 sm:p-3 rounded-xl transition-all duration-300 ${theme === 'dark'
+                ? 'hover:bg-pink-950/50 text-pink-300 hover:text-pink-200 border border-pink-500/20'
+                : 'hover:bg-pink-100 text-pink-600 hover:text-pink-500 border border-pink-200'
+                }`}
             >
               <Icon name="x" className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
@@ -453,11 +453,10 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                 {CHALLENGE_PLANS.map((plan) => (
                   <div
                     key={plan.id}
-                    className={`relative rounded-3xl border-2 transition-all duration-300 cursor-pointer ${
-                      selectedPlan?.id === plan.id 
-                        ? 'ring-2 ring-pink-500 ring-offset-2 ring-offset-transparent scale-105' 
-                        : 'hover:scale-102'
-                    } ${getPlanColor(plan.color)}`}
+                    className={`relative rounded-3xl border-2 transition-all duration-300 cursor-pointer ${selectedPlan?.id === plan.id
+                      ? 'ring-2 ring-pink-500 ring-offset-2 ring-offset-transparent scale-105'
+                      : 'hover:scale-102'
+                      } ${getPlanColor(plan.color)}`}
                     onClick={() => handlePlanSelect(plan)}
                   >
                     <div className="p-6 space-y-4">
@@ -469,9 +468,8 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                         <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                           {plan.description}
                         </p>
-                        <div className={`inline-flex items-center gap-2 mt-2 px-3 py-1 rounded-full text-xs font-medium ${
-                          theme === 'dark' ? 'bg-black/30' : 'bg-white/30'
-                        }`}>
+                        <div className={`inline-flex items-center gap-2 mt-2 px-3 py-1 rounded-full text-xs font-medium ${theme === 'dark' ? 'bg-black/30' : 'bg-white/30'
+                          }`}>
                           <Icon name="calendar" className="w-3 h-3" />
                           {plan.duration} días
                         </div>
@@ -531,13 +529,12 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                       {/* Task Card */}
                       <div
                         onClick={() => toggleCustomTask(task.id)}
-                        className={`relative rounded-2xl border-2 p-3 sm:p-4 cursor-pointer transition-all duration-300 ${
-                          customTasks.includes(task.id)
-                            ? 'border-green-500 bg-green-500/10'
-                            : theme === 'dark'
-                              ? 'border-gray-600 hover:border-gray-500 bg-gray-800/50'
-                              : 'border-gray-300 hover:border-gray-400 bg-gray-50/50'
-                        }`}
+                        className={`relative rounded-2xl border-2 p-3 sm:p-4 cursor-pointer transition-all duration-300 ${customTasks.includes(task.id)
+                          ? 'border-green-500 bg-green-500/10'
+                          : theme === 'dark'
+                            ? 'border-gray-600 hover:border-gray-500 bg-gray-800/50'
+                            : 'border-gray-300 hover:border-gray-400 bg-gray-50/50'
+                          }`}
                       >
                         {/* Selection Indicator */}
                         {customTasks.includes(task.id) && (
@@ -551,13 +548,12 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                         {/* Task Content */}
                         <div className="pr-0 sm:pr-8">
                           <div className="flex items-start gap-2 sm:gap-3">
-                            <Icon 
-                              name={task.icon} 
-                              className={`w-4 h-4 sm:w-5 sm:h-5 mt-0.5 ${
-                                customTasks.includes(task.id) 
-                                  ? 'text-green-500' 
-                                  : theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                              }`} 
+                            <Icon
+                              name={task.icon}
+                              className={`w-4 h-4 sm:w-5 sm:h-5 mt-0.5 ${customTasks.includes(task.id)
+                                ? 'text-green-500'
+                                : theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                                }`}
                             />
                             <div className="flex-1">
                               {editingTask === task.id ? (
@@ -567,38 +563,35 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                                     value={task.label}
                                     onChange={(e) => updateTaskDefinition(task.id, 'label', e.target.value)}
                                     onClick={(e) => e.stopPropagation()}
-                                    className={`w-full px-2 py-1 rounded text-sm font-medium border ${
-                                      theme === 'dark'
-                                        ? 'bg-gray-700 border-gray-600 text-white'
-                                        : 'bg-white border-gray-300 text-gray-900'
-                                    }`}
+                                    className={`w-full px-2 py-1 rounded text-sm font-medium border ${theme === 'dark'
+                                      ? 'bg-gray-700 border-gray-600 text-white'
+                                      : 'bg-white border-gray-300 text-gray-900'
+                                      }`}
                                   />
                                   <textarea
                                     value={task.description}
                                     onChange={(e) => updateTaskDefinition(task.id, 'description', e.target.value)}
                                     onClick={(e) => e.stopPropagation()}
                                     rows={2}
-                                    className={`w-full px-2 py-1 rounded text-sm border resize-none ${
-                                      theme === 'dark'
-                                        ? 'bg-gray-700 border-gray-600 text-white'
-                                        : 'bg-white border-gray-300 text-gray-900'
-                                    }`}
+                                    className={`w-full px-2 py-1 rounded text-sm border resize-none ${theme === 'dark'
+                                      ? 'bg-gray-700 border-gray-600 text-white'
+                                      : 'bg-white border-gray-300 text-gray-900'
+                                      }`}
                                   />
                                   <div className="flex gap-2">
                                     <select
                                       value={task.icon}
                                       onChange={(e) => {
                                         const updatedTask = { ...task, icon: e.target.value };
-                                        setCustomTaskDefinitions(prev => 
+                                        setCustomTaskDefinitions(prev =>
                                           prev.map(t => t.id === task.id ? updatedTask : t)
                                         );
                                       }}
                                       onClick={(e) => e.stopPropagation()}
-                                      className={`flex-1 px-2 py-1 rounded text-xs border ${
-                                        theme === 'dark'
-                                          ? 'bg-gray-700 border-gray-600 text-white'
-                                          : 'bg-white border-gray-300 text-gray-900'
-                                      }`}
+                                      className={`flex-1 px-2 py-1 rounded text-xs border ${theme === 'dark'
+                                        ? 'bg-gray-700 border-gray-600 text-white'
+                                        : 'bg-white border-gray-300 text-gray-900'
+                                        }`}
                                     >
                                       {availableIcons.map(icon => (
                                         <option key={icon} value={icon}>{icon}</option>
@@ -610,11 +603,10 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                                       e.stopPropagation();
                                       setEditingTask(null);
                                     }}
-                                    className={`w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                                      theme === 'dark'
-                                        ? 'bg-green-600 text-white hover:bg-green-700'
-                                        : 'bg-green-500 text-white hover:bg-green-600'
-                                    }`}
+                                    className={`w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${theme === 'dark'
+                                      ? 'bg-green-600 text-white hover:bg-green-700'
+                                      : 'bg-green-500 text-white hover:bg-green-600'
+                                      }`}
                                   >
                                     Confirmar Cambios
                                   </button>
@@ -641,13 +633,12 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                             e.stopPropagation();
                             setEditingTask(editingTask === task.id ? null : task.id);
                           }}
-                          className={`p-1.5 rounded-lg transition-all duration-200 transform hover:scale-110 ${
-                            editingTask === task.id
-                              ? 'bg-blue-500 text-white shadow-lg'
-                              : theme === 'dark'
-                                ? 'hover:bg-blue-600/20 text-gray-400 hover:text-blue-400 hover:shadow-md'
-                                : 'hover:bg-blue-100 text-gray-500 hover:text-blue-600 hover:shadow-md'
-                          }`}
+                          className={`p-1.5 rounded-lg transition-all duration-200 transform hover:scale-110 ${editingTask === task.id
+                            ? 'bg-blue-500 text-white shadow-lg'
+                            : theme === 'dark'
+                              ? 'hover:bg-blue-600/20 text-gray-400 hover:text-blue-400 hover:shadow-md'
+                              : 'hover:bg-blue-100 text-gray-500 hover:text-blue-600 hover:shadow-md'
+                            }`}
                           title={editingTask === task.id ? "Guardando cambios..." : "Editar tarea"}
                         >
                           <Icon name="edit-3" className="w-4 h-4" />
@@ -657,11 +648,10 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                             e.stopPropagation();
                             deleteCustomTask(task.id);
                           }}
-                          className={`p-1.5 rounded-lg transition-all duration-200 transform hover:scale-110 ${
-                            theme === 'dark'
-                              ? 'hover:bg-red-600/20 text-gray-400 hover:text-red-400 hover:shadow-md'
-                              : 'hover:bg-red-50 text-gray-500 hover:text-red-600 hover:shadow-md'
-                          }`}
+                          className={`p-1.5 rounded-lg transition-all duration-200 transform hover:scale-110 ${theme === 'dark'
+                            ? 'hover:bg-red-600/20 text-gray-400 hover:text-red-400 hover:shadow-md'
+                            : 'hover:bg-red-50 text-gray-500 hover:text-red-600 hover:shadow-md'
+                            }`}
                           title="Eliminar tarea"
                         >
                           <Icon name="trash-2" className="w-4 h-4" />
@@ -673,11 +663,10 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                   {/* Add New Task Button */}
                   <div
                     onClick={() => addNewCustomTask()}
-                    className={`relative rounded-2xl border-2 border-dashed p-4 cursor-pointer transition-all duration-300 ${
-                      theme === 'dark'
-                        ? 'border-gray-600 hover:border-gray-500 bg-gray-800/30 hover:bg-gray-800/50'
-                        : 'border-gray-300 hover:border-gray-400 bg-gray-50/30 hover:bg-gray-50/50'
-                    }`}
+                    className={`relative rounded-2xl border-2 border-dashed p-4 cursor-pointer transition-all duration-300 ${theme === 'dark'
+                      ? 'border-gray-600 hover:border-gray-500 bg-gray-800/30 hover:bg-gray-800/50'
+                      : 'border-gray-300 hover:border-gray-400 bg-gray-50/30 hover:bg-gray-50/50'
+                      }`}
                   >
                     <div className="flex flex-col items-center justify-center h-full min-h-[120px]">
                       <Icon name="plus" className={`w-8 h-8 mb-2 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
@@ -690,11 +679,10 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
 
                 {/* Custom Plan Summary */}
                 {customTasks.length > 0 && (
-                  <div className={`p-4 rounded-xl border ${
-                    theme === 'dark' 
-                      ? 'bg-green-950/20 border-green-500/20' 
-                      : 'bg-green-50/20 border-green-200'
-                  }`}>
+                  <div className={`p-4 rounded-xl border ${theme === 'dark'
+                    ? 'bg-green-950/20 border-green-500/20'
+                    : 'bg-green-50/20 border-green-200'
+                    }`}>
                     <div className="flex items-center justify-between">
                       <div>
                         <p className={`font-medium ${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>
@@ -704,9 +692,8 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                           {customTasks.length} {customTasks.length === 1 ? 'tarea' : 'tareas'} seleccionadas
                         </p>
                       </div>
-                      <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        theme === 'dark' ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-700'
-                      }`}>
+                      <div className={`px-3 py-1 rounded-full text-sm font-medium ${theme === 'dark' ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-700'
+                        }`}>
                         {selectedPlan?.duration} días
                       </div>
                     </div>
@@ -720,21 +707,23 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                           setCustomTasks([]);
                           setEditingTask(null);
                         }}
-                        className={`w-full sm:w-auto px-3 py-2 rounded-xl transition-all duration-300 font-medium text-sm ${
-                          theme === 'dark' ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
-                        }`}
+                        className={`w-full sm:w-auto px-3 py-2 rounded-xl transition-all duration-300 font-medium text-sm ${theme === 'dark' ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                          }`}
                       >
                         Cancelar
                       </button>
 
                       <button
                         onClick={confirmCustomPlan}
-                        disabled={customTasks.length === 0}
-                        className={`w-full sm:w-auto px-3 py-2 rounded-xl transition-all duration-300 font-medium text-sm ${
-                          customTasks.length > 0 ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                        }`}
+                        disabled={customTasks.length === 0 || !isLoggedIn}
+                        className={`w-full sm:w-auto px-3 py-2 rounded-xl transition-all duration-300 font-medium text-sm ${!isLoggedIn
+                          ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                          : customTasks.length > 0
+                            ? 'bg-green-600 text-white hover:bg-green-700'
+                            : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                          }`}
                       >
-                        Confirmar Plan Personalizado
+                        {!isLoggedIn ? 'Inicia sesión para seleccionar' : 'Confirmar Plan Personalizado'}
                       </button>
                     </div>
                   </div>
@@ -758,18 +747,16 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                   {selectedPlan.tasks.map((task) => (
                     <div key={task.id} className="relative">
                       {/* Task Card */}
-                      <div className={`relative rounded-2xl border-2 p-4 transition-all duration-300 ${
-                        theme === 'dark'
-                          ? 'border-gray-600 bg-gray-800/50'
-                          : 'border-gray-300 bg-gray-50/50'
-                      }`}>
+                      <div className={`relative rounded-2xl border-2 p-4 transition-all duration-300 ${theme === 'dark'
+                        ? 'border-gray-600 bg-gray-800/50'
+                        : 'border-gray-300 bg-gray-50/50'
+                        }`}>
                         {/* Task Content */}
                         <div className="flex items-start gap-3">
-                          <Icon 
-                            name={task.icon} 
-                            className={`w-5 h-5 mt-0.5 ${
-                              theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                            }`} 
+                          <Icon
+                            name={task.icon}
+                            className={`w-5 h-5 mt-0.5 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                              }`}
                           />
                           <div className="flex-1">
                             <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
@@ -786,11 +773,10 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                 </div>
 
                 {/* Plan Summary */}
-                <div className={`p-3 sm:p-4 rounded-xl border ${
-                  theme === 'dark' 
-                    ? 'bg-pink-950/20 border-pink-500/20' 
-                    : 'bg-pink-50/20 border-pink-200'
-                }`}>
+                <div className={`p-3 sm:p-4 rounded-xl border ${theme === 'dark'
+                  ? 'bg-pink-950/20 border-pink-500/20'
+                  : 'bg-pink-50/20 border-pink-200'
+                  }`}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className={`font-medium ${theme === 'dark' ? 'text-pink-300' : 'text-pink-700'}`}>
@@ -800,9 +786,8 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                         {selectedPlan.name} • {selectedPlan.tasks.length} tareas diarias
                       </p>
                     </div>
-                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      theme === 'dark' ? 'bg-pink-500/20 text-pink-300' : 'bg-pink-100 text-pink-700'
-                    }`}>
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${theme === 'dark' ? 'bg-pink-500/20 text-pink-300' : 'bg-pink-100 text-pink-700'
+                      }`}>
                       {selectedPlan.duration} días
                     </div>
                   </div>
@@ -817,41 +802,45 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
               {!isCustomizing ? (
                 selectedPlan ? `Plan seleccionado: ${selectedPlan.name}` : 'No hay plan seleccionado'
               ) : (
-                customTasks.length > 0 
+                customTasks.length > 0
                   ? `${customTasks.length} ${customTasks.length === 1 ? 'tarea' : 'tareas'} seleccionadas`
                   : 'Selecciona al menos una tarea'
               )}
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               {!isCustomizing ? (
                 <>
                   <button
                     onClick={handleClose}
-                    className={`w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${
-                      theme === 'dark' 
-                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
-                    }`}
+                    className={`w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${theme === 'dark'
+                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                      }`}
                   >
                     Cancelar
                   </button>
-                  
+
                   <button
                     onClick={() => {
+                      if (!isLoggedIn) {
+                        alert("Debes iniciar sesión para seleccionar un plan.");
+                        return;
+                      }
                       if (selectedPlan) {
                         onSelectPlan(selectedPlan);
                         handleClose();
                       }
                     }}
-                    disabled={!selectedPlan}
-                    className={`w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${
-                      selectedPlan
-                        ? 'bg-pink-600 text-white hover:bg-pink-700'
-                        : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                    }`}
+                    disabled={!selectedPlan || !isLoggedIn}
+                    className={`w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium ${!isLoggedIn
+                        ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                        : selectedPlan
+                          ? 'bg-pink-600 text-white hover:bg-pink-700'
+                          : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                      }`}
                   >
-                    Comenzar Desafío
+                    {!isLoggedIn ? 'Inicia Sesión' : 'Comenzar Desafío'}
                   </button>
                 </>
               ) : (
@@ -864,25 +853,31 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
                         setCustomTasks([]);
                         setEditingTask(null);
                       }}
-                      className={`px-3 sm:px-4 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium text-sm sm:text-base ${
-                        theme === 'dark' 
-                          ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' 
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
-                      }`}
+                      className={`px-3 sm:px-4 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium text-sm sm:text-base ${theme === 'dark'
+                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                        }`}
                     >
                       Atrás
                     </button>
 
                     <button
-                      onClick={confirmCustomPlan}
-                      disabled={customTasks.length === 0}
-                      className={`px-3 sm:px-4 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium text-sm sm:text-base ${
-                        customTasks.length > 0
-                          ? 'bg-green-600 text-white hover:bg-green-700'
-                          : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                      }`}
+                      onClick={() => {
+                        if (!isLoggedIn) {
+                          alert("Debes iniciar sesión para seleccionar un plan.");
+                          return;
+                        }
+                        confirmCustomPlan();
+                      }}
+                      disabled={customTasks.length === 0 || !isLoggedIn}
+                      className={`px-3 sm:px-4 py-2 sm:py-3 rounded-xl transition-all duration-300 font-medium text-sm sm:text-base ${!isLoggedIn
+                          ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                          : customTasks.length > 0
+                            ? 'bg-green-600 text-white hover:bg-green-700'
+                            : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                        }`}
                     >
-                      Confirmar Plan Personalizado
+                      {!isLoggedIn ? 'Inicia Sesión' : 'Confirmar Plan Personalizado'}
                     </button>
                   </div>
                 </>
@@ -891,7 +886,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ theme, isOpen, onClose, onS
           </div>
         </div>
       </div>
-      
+
       {/* Mobile Plan Details Popup */}
       <MobilePlanDetailsPopup />
     </div>
