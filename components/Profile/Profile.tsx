@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Trophy, Flame, Award, Gamepad2, MapPin, Star, X, User, LogOut } from 'lucide-react';
 import Login from '../Register/Login';
 import Register from '../Register/Register';
@@ -34,6 +34,16 @@ interface Achievement {
   name: string;
   unlocked: boolean;
   popupData: BadgePopupData;
+}
+
+interface CommentType {
+  id: string;
+  authorName: string;
+  authorInitials: string;
+  timestamp: string;
+  text: string;
+  likes: number;
+  colorClass: string;
 }
 
 interface ActivityLog {
@@ -160,6 +170,36 @@ const USER_DATA: UserProfile = {
     }
   ]
 };
+
+const INITIAL_COMMENTS: CommentType[] = [
+  {
+    id: 'c1',
+    authorName: 'Juan Díaz',
+    authorInitials: 'JD',
+    timestamp: 'Hace 2 horas',
+    text: '¡Excelente progreso con el desafío! Sigue así, estás muy cerca de completarlo. La constancia es la clave del éxito.',
+    likes: 3,
+    colorClass: 'from-blue-500 to-purple-600'
+  },
+  {
+    id: 'c2',
+    authorName: 'María García',
+    authorInitials: 'MG',
+    timestamp: 'Hace 5 horas',
+    text: '¿Cómo llevas la parte de la dieta? Yo estoy luchando con ese aspecto del desafío. ¡Ánimo!',
+    likes: 1,
+    colorClass: 'from-green-500 to-teal-600'
+  },
+  {
+    id: 'c3',
+    authorName: 'Carlos Rodríguez',
+    authorInitials: 'CR',
+    timestamp: 'Ayer',
+    text: '¡Increíble motivación! Tu dedicación es inspiradora. ¿Podrías compartir algunos consejos para mantener la disciplina?',
+    likes: 5,
+    colorClass: 'from-orange-500 to-red-600'
+  }
+];
 
 // ==========================================
 // 3. SUB-COMPONENTES (ÁTOMOS Y MOLÉCULAS)
@@ -330,6 +370,22 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
   const [authView, setAuthView] = useState<'login' | 'register'>('login');
   const [selectedBadge, setSelectedBadge] = useState<Achievement | null>(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [comments, setComments] = useState<CommentType[]>(() => {
+    try {
+      const saved = localStorage.getItem('75hard_profile_comments');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (error) {
+      console.error('Error loading comments from localStorage:', error);
+    }
+    return INITIAL_COMMENTS;
+  });
+  const [newCommentText, setNewCommentText] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('75hard_profile_comments', JSON.stringify(comments));
+  }, [comments]);
 
   // Si no está logueado, mostrar la pantalla de autenticación
   if (!isLoggedIn) {
@@ -365,6 +421,30 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
     location: currentUser.location || USER_DATA.location
   } : USER_DATA;
   const { username, handle, stats, activities, badges, location, status } = displayUser;
+
+  const handleAddComment = () => {
+    if (!newCommentText.trim()) return;
+
+    const initials = (currentUser?.name || username)
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+
+    const newComment: CommentType = {
+      id: Date.now().toString(),
+      authorName: currentUser?.name || username,
+      authorInitials: initials,
+      timestamp: 'Justo ahora',
+      text: newCommentText,
+      likes: 0,
+      colorClass: 'from-pink-500 to-rose-600'
+    };
+
+    setComments([newComment, ...comments]);
+    setNewCommentText('');
+  };
 
   const rootClass = isModal
     ? `w-full h-full p-2 sm:p-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'}`
@@ -589,18 +669,24 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
             <section className="mt-6 sm:mt-8">
               <div className="flex justify-between items-center mb-4">
                 <h2 className={`${theme === 'dark' ? 'text-white' : 'text-pink-700'} text-base sm:text-lg`}>Comentarios</h2>
-                <span className={`${theme === 'dark' ? 'text-xs text-gray-500' : 'text-xs text-pink-600'}`}>12 comentarios</span>
+                <span className={`${theme === 'dark' ? 'text-xs text-gray-500' : 'text-xs text-pink-600'}`}>{comments.length} comentarios</span>
               </div>
 
               {/* Comment Input */}
               <div className={`${theme === 'dark' ? 'bg-[#12151a]/50' : 'bg-pink-50/80'} p-4 rounded-lg mb-4`}>
                 <textarea
                   placeholder="Escribe un comentario..."
+                  value={newCommentText}
+                  onChange={(e) => setNewCommentText(e.target.value)}
                   className={`w-full p-3 rounded border ${theme === 'dark' ? 'bg-[#21262d] border-gray-600 text-white placeholder-gray-400' : 'bg-white border-pink-200 text-gray-900 placeholder-gray-500'} resize-none focus:outline-none focus:ring-2 focus:ring-pink-500`}
                   rows={3}
                 />
                 <div className="flex justify-end mt-2">
-                  <button className={`${theme === 'dark' ? 'bg-pink-600 hover:bg-pink-700' : 'bg-pink-500 hover:bg-pink-600'} text-white px-4 py-2 rounded text-sm transition-colors`}>
+                  <button
+                    onClick={handleAddComment}
+                    disabled={!newCommentText.trim()}
+                    className={`${theme === 'dark' ? 'bg-pink-600 hover:bg-pink-700 disabled:bg-gray-700 disabled:text-gray-500' : 'bg-pink-500 hover:bg-pink-600 disabled:bg-pink-200 disabled:text-pink-400'} text-white px-4 py-2 rounded text-sm transition-colors`}
+                  >
                     Publicar comentario
                   </button>
                 </div>
@@ -608,83 +694,32 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
 
               {/* Comments List */}
               <div className="space-y-3">
-                {/* Comment 1 */}
-                <div className={`${theme === 'dark' ? 'bg-[#12151a]/30' : 'bg-pink-50/60'} p-4 rounded-lg`}>
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      JD
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Juan Díaz</span>
-                        <span className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-xs`}>Hace 2 horas</span>
+                {comments.map((comment) => (
+                  <div key={comment.id} className={`${theme === 'dark' ? 'bg-[#12151a]/30' : 'bg-pink-50/60'} p-4 rounded-lg`}>
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 bg-gradient-to-br ${comment.colorClass} rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0`}>
+                        {comment.authorInitials}
                       </div>
-                      <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
-                        ¡Excelente progreso con el desafío! Sigue así, estás muy cerca de completarlo. La constancia es la clave del éxito.
-                      </p>
-                      <div className="flex gap-4 mt-2">
-                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
-                          👍 Útil (3)
-                        </button>
-                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
-                          Responder
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Comment 2 */}
-                <div className={`${theme === 'dark' ? 'bg-[#12151a]/30' : 'bg-pink-50/60'} p-4 rounded-lg`}>
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      MG
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>María García</span>
-                        <span className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-xs`}>Hace 5 horas</span>
-                      </div>
-                      <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
-                        ¿Cómo llevas la parte de la dieta? Yo estoy luchando con ese aspecto del desafío. ¡Ánimo!
-                      </p>
-                      <div className="flex gap-4 mt-2">
-                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
-                          👍 Útil (1)
-                        </button>
-                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
-                          Responder
-                        </button>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`font-medium truncate ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{comment.authorName}</span>
+                          <span className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-xs flex-shrink-0`}>{comment.timestamp}</span>
+                        </div>
+                        <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm break-words`}>
+                          {comment.text}
+                        </p>
+                        <div className="flex gap-4 mt-2">
+                          <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
+                            👍 Útil ({comment.likes})
+                          </button>
+                          <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
+                            Responder
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Comment 3 */}
-                <div className={`${theme === 'dark' ? 'bg-[#12151a]/30' : 'bg-pink-50/60'} p-4 rounded-lg`}>
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      CR
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Carlos Rodríguez</span>
-                        <span className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-xs`}>Ayer</span>
-                      </div>
-                      <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
-                        ¡Increíble motivación! Tu dedicación es inspiradora. ¿Podrías compartir algunos consejos para mantener la disciplina?
-                      </p>
-                      <div className="flex gap-4 mt-2">
-                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
-                          👍 Útil (5)
-                        </button>
-                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
-                          Responder
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
 
               {/* Load More Comments */}
