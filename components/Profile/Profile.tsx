@@ -245,10 +245,91 @@ const ActivityRow = ({
 // 4. COMPONENTE PRINCIPAL (PROFILE PAGE)
 // ==========================================
 
+const EditProfileModal = ({
+  user,
+  onSave,
+  onClose,
+  theme = 'dark'
+}: {
+  user: { name: string; bio: string; location: string };
+  onSave: (data: { name: string; bio: string; location: string }) => void;
+  onClose: () => void;
+  theme?: 'dark' | 'light';
+}) => {
+  const [formData, setFormData] = useState(user);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className={`w-full max-w-md p-6 rounded-xl shadow-2xl ${theme === 'dark' ? 'bg-gray-900 border border-gray-700 text-white' : 'bg-white border border-pink-200 text-gray-900'}`}>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold">Editar Perfil</h2>
+          <button onClick={onClose} className={`p-1 rounded-full hover:bg-gray-500/20 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+            <X size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className={`block text-xs font-medium uppercase tracking-wider mb-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Nombre</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className={`w-full p-3 rounded-lg border ${theme === 'dark' ? 'bg-gray-800 border-gray-600 text-white focus:border-blue-500' : 'bg-white border-gray-300 text-gray-900 focus:border-pink-500'} focus:ring-2 focus:ring-opacity-50 outline-none transition-all`}
+            />
+          </div>
+
+          <div>
+            <label className={`block text-xs font-medium uppercase tracking-wider mb-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Ubicación</label>
+            <input
+              type="text"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              className={`w-full p-3 rounded-lg border ${theme === 'dark' ? 'bg-gray-800 border-gray-600 text-white focus:border-blue-500' : 'bg-white border-gray-300 text-gray-900 focus:border-pink-500'} focus:ring-2 focus:ring-opacity-50 outline-none transition-all`}
+            />
+          </div>
+
+          <div>
+            <label className={`block text-xs font-medium uppercase tracking-wider mb-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Bio</label>
+            <textarea
+              value={formData.bio}
+              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+              rows={4}
+              className={`w-full p-3 rounded-lg border ${theme === 'dark' ? 'bg-gray-800 border-gray-600 text-white focus:border-blue-500' : 'bg-white border-gray-300 text-gray-900 focus:border-pink-500'} focus:ring-2 focus:ring-opacity-50 outline-none transition-all resize-none`}
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className={`px-6 py-2 rounded-lg text-sm font-medium text-white shadow-lg transition-transform active:scale-95 ${theme === 'dark' ? 'bg-blue-600 hover:bg-blue-500 shadow-blue-900/20' : 'bg-pink-500 hover:bg-pink-600 shadow-pink-200'}`}
+            >
+              Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 export default function Profile({ theme = 'dark', isModal = false, onClose }: ProfileProps) {
-  const { isLoggedIn, currentUser, login, register, logout } = useAuth();
+  const { isLoggedIn, currentUser, login, register, logout, updateProfile } = useAuth();
   const [authView, setAuthView] = useState<'login' | 'register'>('login');
   const [selectedBadge, setSelectedBadge] = useState<Achievement | null>(null);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
 
   // Si no está logueado, mostrar la pantalla de autenticación
   if (!isLoggedIn) {
@@ -279,7 +360,9 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
     ...USER_DATA,
     username: currentUser.name,
     email: currentUser.email,
-    avatarUrl: currentUser.avatarUrl || USER_DATA.avatarUrl
+    avatarUrl: currentUser.avatarUrl || USER_DATA.avatarUrl,
+    bio: currentUser.bio || USER_DATA.bio,
+    location: currentUser.location || USER_DATA.location
   } : USER_DATA;
   const { username, handle, stats, activities, badges, location, status } = displayUser;
 
@@ -293,6 +376,21 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
 
   return (
     <div className={rootClass}>
+      {isEditingProfile && (
+        <EditProfileModal
+          user={{
+            name: displayUser.username,
+            bio: displayUser.bio,
+            location: displayUser.location
+          }}
+          onSave={(data) => {
+            updateProfile(data);
+            setIsEditingProfile(false);
+          }}
+          onClose={() => setIsEditingProfile(false)}
+          theme={theme}
+        />
+      )}
       {/* Main Content Wrapper - Limit width similar to Steam's layout */}
       <div className={`w-full ${isModal ? 'max-w-4xl mx-auto h-[90vh] overflow-y-auto' : 'max-w-5xl'} ${cardBg} backdrop-blur-md rounded-lg shadow-2xl relative`}>
 
@@ -385,7 +483,10 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
                 <div className="mb-3 sm:mb-4">
                   <LevelBadge level={stats.level} xp={stats.xp} nextXp={stats.nextLevelXp} theme={theme} />
                 </div>
-                <button className={`${theme === 'dark' ? 'text-xs bg-[#21262d] hover:bg-[#2a3038] text-white py-2 px-4 rounded border border-gray-600' : 'text-xs bg-pink-100 text-pink-700 hover:bg-pink-200 py-2 px-4 rounded border border-pink-200'} w-fit transition-colors`}>
+                <button
+                  onClick={() => setIsEditingProfile(true)}
+                  className={`${theme === 'dark' ? 'text-xs bg-[#21262d] hover:bg-[#2a3038] text-white py-2 px-4 rounded border border-gray-600' : 'text-xs bg-pink-100 text-pink-700 hover:bg-pink-200 py-2 px-4 rounded border border-pink-200'} w-fit transition-colors`}
+                >
                   Edit Profile
                 </button>
               </div>
