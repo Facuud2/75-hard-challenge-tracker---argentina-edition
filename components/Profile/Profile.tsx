@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Trophy, Flame, Award, Gamepad2, MapPin, Star, X, User, LogOut } from 'lucide-react';
 import Login from '../Register/Login';
 import Register from '../Register/Register';
@@ -21,11 +21,29 @@ interface UserData {
 // ==========================================
 // Definimos las estructuras de datos. Esto ayuda a que el IDE te avise si cometes errores.
 
+interface BadgePopupData {
+  title: string;
+  value: string | number;
+  description: string;
+  icon?: React.ReactNode;
+}
+
 interface Achievement {
   id: string;
   icon: React.ReactNode;
   name: string;
   unlocked: boolean;
+  popupData: BadgePopupData;
+}
+
+interface CommentType {
+  id: string;
+  authorName: string;
+  authorInitials: string;
+  timestamp: string;
+  text: string;
+  likes: number;
+  colorClass: string;
 }
 
 interface ActivityLog {
@@ -74,10 +92,50 @@ const USER_DATA: UserProfile = {
   status: 'online',
   bio: "Transformando disciplina en código. 75 Hard Challenge en proceso.",
   badges: [
-    { id: '1', icon: <Trophy size={16} />, name: 'Gold Medal', unlocked: true },
-    { id: '2', icon: <Award size={16} />, name: '100+ Days', unlocked: true },
-    { id: '3', icon: <Star size={16} />, name: 'Elite', unlocked: true },
-    { id: '4', icon: <Flame size={16} />, name: 'On Fire', unlocked: true },
+    {
+      id: '1',
+      icon: <Trophy size={16} />,
+      name: 'Gold Medal',
+      unlocked: true,
+      popupData: {
+        title: "Trofeo Más Valioso",
+        value: "Platino 2025",
+        description: "Otorgado por completar todos los desafíos del año con calificación perfecta."
+      }
+    },
+    {
+      id: '2',
+      icon: <Award size={16} />,
+      name: '100+ Days',
+      unlocked: true,
+      popupData: {
+        title: "Challenge Más Featured",
+        value: "Reto de Verano",
+        description: "Tu desafío más popular, destacado en la portada durante 3 semanas consecutivas."
+      }
+    },
+    {
+      id: '3',
+      icon: <Star size={16} />,
+      name: 'Elite',
+      unlocked: true,
+      popupData: {
+        title: "Total de Me Gustas",
+        value: "1,245",
+        description: "Acumulados en todos tus comentarios y publicaciones hasta la fecha."
+      }
+    },
+    {
+      id: '4',
+      icon: <Flame size={16} />,
+      name: 'On Fire',
+      unlocked: true,
+      popupData: {
+        title: "Mayor Racha",
+        value: "32 Días",
+        description: "Tu consistencia más larga registrada sin fallar ningún día del reto."
+      }
+    },
   ],
   stats: {
     currentDay: 150,
@@ -112,6 +170,36 @@ const USER_DATA: UserProfile = {
     }
   ]
 };
+
+const INITIAL_COMMENTS: CommentType[] = [
+  {
+    id: 'c1',
+    authorName: 'Juan Díaz',
+    authorInitials: 'JD',
+    timestamp: 'Hace 2 horas',
+    text: '¡Excelente progreso con el desafío! Sigue así, estás muy cerca de completarlo. La constancia es la clave del éxito.',
+    likes: 3,
+    colorClass: 'from-blue-500 to-purple-600'
+  },
+  {
+    id: 'c2',
+    authorName: 'María García',
+    authorInitials: 'MG',
+    timestamp: 'Hace 5 horas',
+    text: '¿Cómo llevas la parte de la dieta? Yo estoy luchando con ese aspecto del desafío. ¡Ánimo!',
+    likes: 1,
+    colorClass: 'from-green-500 to-teal-600'
+  },
+  {
+    id: 'c3',
+    authorName: 'Carlos Rodríguez',
+    authorInitials: 'CR',
+    timestamp: 'Ayer',
+    text: '¡Increíble motivación! Tu dedicación es inspiradora. ¿Podrías compartir algunos consejos para mantener la disciplina?',
+    likes: 5,
+    colorClass: 'from-orange-500 to-red-600'
+  }
+];
 
 // ==========================================
 // 3. SUB-COMPONENTES (ÁTOMOS Y MOLÉCULAS)
@@ -191,13 +279,113 @@ const ActivityRow = ({
   </div>
 );
 
+
+
 // ==========================================
 // 4. COMPONENTE PRINCIPAL (PROFILE PAGE)
 // ==========================================
 
+const EditProfileModal = ({
+  user,
+  onSave,
+  onClose,
+  theme = 'dark'
+}: {
+  user: { name: string; bio: string; location: string };
+  onSave: (data: { name: string; bio: string; location: string }) => void;
+  onClose: () => void;
+  theme?: 'dark' | 'light';
+}) => {
+  const [formData, setFormData] = useState(user);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className={`w-full max-w-md p-6 rounded-xl shadow-2xl ${theme === 'dark' ? 'bg-gray-900 border border-gray-700 text-white' : 'bg-white border border-pink-200 text-gray-900'}`}>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold">Editar Perfil</h2>
+          <button onClick={onClose} className={`p-1 rounded-full hover:bg-gray-500/20 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+            <X size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className={`block text-xs font-medium uppercase tracking-wider mb-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Nombre</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className={`w-full p-3 rounded-lg border ${theme === 'dark' ? 'bg-gray-800 border-gray-600 text-white focus:border-blue-500' : 'bg-white border-gray-300 text-gray-900 focus:border-pink-500'} focus:ring-2 focus:ring-opacity-50 outline-none transition-all`}
+            />
+          </div>
+
+          <div>
+            <label className={`block text-xs font-medium uppercase tracking-wider mb-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Ubicación</label>
+            <input
+              type="text"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              className={`w-full p-3 rounded-lg border ${theme === 'dark' ? 'bg-gray-800 border-gray-600 text-white focus:border-blue-500' : 'bg-white border-gray-300 text-gray-900 focus:border-pink-500'} focus:ring-2 focus:ring-opacity-50 outline-none transition-all`}
+            />
+          </div>
+
+          <div>
+            <label className={`block text-xs font-medium uppercase tracking-wider mb-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Bio</label>
+            <textarea
+              value={formData.bio}
+              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+              rows={4}
+              className={`w-full p-3 rounded-lg border ${theme === 'dark' ? 'bg-gray-800 border-gray-600 text-white focus:border-blue-500' : 'bg-white border-gray-300 text-gray-900 focus:border-pink-500'} focus:ring-2 focus:ring-opacity-50 outline-none transition-all resize-none`}
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className={`px-6 py-2 rounded-lg text-sm font-medium text-white shadow-lg transition-transform active:scale-95 ${theme === 'dark' ? 'bg-blue-600 hover:bg-blue-500 shadow-blue-900/20' : 'bg-pink-500 hover:bg-pink-600 shadow-pink-200'}`}
+            >
+              Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 export default function Profile({ theme = 'dark', isModal = false, onClose }: ProfileProps) {
-  const { isLoggedIn, currentUser, login, register, logout } = useAuth();
+  const { isLoggedIn, currentUser, login, register, logout, updateProfile } = useAuth();
   const [authView, setAuthView] = useState<'login' | 'register'>('login');
+  const [selectedBadge, setSelectedBadge] = useState<Achievement | null>(null);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [comments, setComments] = useState<CommentType[]>(() => {
+    try {
+      const saved = localStorage.getItem('75hard_profile_comments');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (error) {
+      console.error('Error loading comments from localStorage:', error);
+    }
+    return INITIAL_COMMENTS;
+  });
+  const [newCommentText, setNewCommentText] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('75hard_profile_comments', JSON.stringify(comments));
+  }, [comments]);
 
   // Si no está logueado, mostrar la pantalla de autenticación
   if (!isLoggedIn) {
@@ -228,9 +416,35 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
     ...USER_DATA,
     username: currentUser.name,
     email: currentUser.email,
-    avatarUrl: currentUser.avatarUrl || USER_DATA.avatarUrl
+    avatarUrl: currentUser.avatarUrl || USER_DATA.avatarUrl,
+    bio: currentUser.bio || USER_DATA.bio,
+    location: currentUser.location || USER_DATA.location
   } : USER_DATA;
   const { username, handle, stats, activities, badges, location, status } = displayUser;
+
+  const handleAddComment = () => {
+    if (!newCommentText.trim()) return;
+
+    const initials = (currentUser?.name || username)
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+
+    const newComment: CommentType = {
+      id: Date.now().toString(),
+      authorName: currentUser?.name || username,
+      authorInitials: initials,
+      timestamp: 'Justo ahora',
+      text: newCommentText,
+      likes: 0,
+      colorClass: 'from-pink-500 to-rose-600'
+    };
+
+    setComments([newComment, ...comments]);
+    setNewCommentText('');
+  };
 
   const rootClass = isModal
     ? `w-full h-full p-2 sm:p-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'}`
@@ -242,6 +456,21 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
 
   return (
     <div className={rootClass}>
+      {isEditingProfile && (
+        <EditProfileModal
+          user={{
+            name: displayUser.username,
+            bio: displayUser.bio,
+            location: displayUser.location
+          }}
+          onSave={(data) => {
+            updateProfile(data);
+            setIsEditingProfile(false);
+          }}
+          onClose={() => setIsEditingProfile(false)}
+          theme={theme}
+        />
+      )}
       {/* Main Content Wrapper - Limit width similar to Steam's layout */}
       <div className={`w-full ${isModal ? 'max-w-4xl mx-auto h-[90vh] overflow-y-auto' : 'max-w-5xl'} ${cardBg} backdrop-blur-md rounded-lg shadow-2xl relative`}>
 
@@ -304,7 +533,7 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
                   <span>{location}</span>
                 </div>
                 <p className="text-gray-400 text-sm max-w-md mb-3 sm:mb-4 italic text-center sm:text-left">
-                  "{currentUser ? 'Miembro activo del 75 Hard Challenge' : USER_DATA.bio}"
+                  "{displayUser.bio}"
                 </p>
                 <div className="flex justify-center sm:justify-start">
                   <a href="#" className="text-xs text-blue-400 hover:text-white transition-colors">View more info</a>
@@ -334,7 +563,10 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
                 <div className="mb-3 sm:mb-4">
                   <LevelBadge level={stats.level} xp={stats.xp} nextXp={stats.nextLevelXp} theme={theme} />
                 </div>
-                <button className={`${theme === 'dark' ? 'text-xs bg-[#21262d] hover:bg-[#2a3038] text-white py-2 px-4 rounded border border-gray-600' : 'text-xs bg-pink-100 text-pink-700 hover:bg-pink-200 py-2 px-4 rounded border border-pink-200'} w-fit transition-colors`}>
+                <button
+                  onClick={() => setIsEditingProfile(true)}
+                  className={`${theme === 'dark' ? 'text-xs bg-[#21262d] hover:bg-[#2a3038] text-white py-2 px-4 rounded border border-gray-600' : 'text-xs bg-pink-100 text-pink-700 hover:bg-pink-200 py-2 px-4 rounded border border-pink-200'} w-fit transition-colors`}
+                >
                   Edit Profile
                 </button>
               </div>
@@ -343,10 +575,35 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
               <div className={`lg:w-80 ${theme === 'dark' ? 'bg-[#12151a]/30 p-4 rounded border border-gray-800' : 'bg-pink-50 p-4 rounded border border-pink-200'}`}>
                 <h3 className={`${theme === 'dark' ? 'text-blue-400' : 'text-pink-600'} text-lg mb-1`}>Currently Online</h3>
 
-                <div className="flex gap-2 mb-6">
+                {/* Backdrop for closing popover */}
+                {selectedBadge && (
+                  <div
+                    className="fixed inset-0 z-40 cursor-default"
+                    onClick={() => setSelectedBadge(null)}
+                  />
+                )}
+
+                <div className="flex gap-2 mb-6 relative z-50">
                   {badges.map((badge) => (
-                    <div key={badge.id} title={badge.name} className={`${theme === 'dark' ? 'bg-gray-800 p-1 rounded border border-gray-600 hover:border-white text-yellow-500' : 'bg-white p-1 rounded border border-pink-100 text-pink-600'} cursor-help transition-colors`}>
-                      {badge.icon}
+                    <div key={badge.id} className="relative">
+                      <button
+                        onClick={() => setSelectedBadge(selectedBadge?.id === badge.id ? null : badge)}
+                        title={badge.name}
+                        className={`${theme === 'dark' ? 'bg-gray-800 p-1 rounded border border-gray-600 hover:border-white text-yellow-500 hover:bg-gray-700' : 'bg-white p-1 rounded border border-pink-100 text-pink-600 hover:bg-pink-50'} cursor-pointer transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500 ${selectedBadge?.id === badge.id ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-900' : ''}`}
+                      >
+                        {badge.icon}
+                      </button>
+
+                      {/* Popover */}
+                      {selectedBadge?.id === badge.id && (
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 z-50 animate-in fade-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                          <div className="bg-black/90 backdrop-blur-md border border-white/10 p-3 rounded-lg shadow-xl text-center relative after:content-[''] after:absolute after:bottom-full after:left-1/2 after:-translate-x-1/2 after:border-8 after:border-transparent after:border-b-black/90">
+                            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-1">{badge.popupData.title}</h4>
+                            <div className="text-xl font-bold text-blue-400 mb-1">{badge.popupData.value}</div>
+                            <p className="text-[10px] text-gray-300 leading-tight">{badge.popupData.description}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -412,18 +669,24 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
             <section className="mt-6 sm:mt-8">
               <div className="flex justify-between items-center mb-4">
                 <h2 className={`${theme === 'dark' ? 'text-white' : 'text-pink-700'} text-base sm:text-lg`}>Comentarios</h2>
-                <span className={`${theme === 'dark' ? 'text-xs text-gray-500' : 'text-xs text-pink-600'}`}>12 comentarios</span>
+                <span className={`${theme === 'dark' ? 'text-xs text-gray-500' : 'text-xs text-pink-600'}`}>{comments.length} comentarios</span>
               </div>
 
               {/* Comment Input */}
               <div className={`${theme === 'dark' ? 'bg-[#12151a]/50' : 'bg-pink-50/80'} p-4 rounded-lg mb-4`}>
                 <textarea
                   placeholder="Escribe un comentario..."
+                  value={newCommentText}
+                  onChange={(e) => setNewCommentText(e.target.value)}
                   className={`w-full p-3 rounded border ${theme === 'dark' ? 'bg-[#21262d] border-gray-600 text-white placeholder-gray-400' : 'bg-white border-pink-200 text-gray-900 placeholder-gray-500'} resize-none focus:outline-none focus:ring-2 focus:ring-pink-500`}
                   rows={3}
                 />
                 <div className="flex justify-end mt-2">
-                  <button className={`${theme === 'dark' ? 'bg-pink-600 hover:bg-pink-700' : 'bg-pink-500 hover:bg-pink-600'} text-white px-4 py-2 rounded text-sm transition-colors`}>
+                  <button
+                    onClick={handleAddComment}
+                    disabled={!newCommentText.trim()}
+                    className={`${theme === 'dark' ? 'bg-pink-600 hover:bg-pink-700 disabled:bg-gray-700 disabled:text-gray-500' : 'bg-pink-500 hover:bg-pink-600 disabled:bg-pink-200 disabled:text-pink-400'} text-white px-4 py-2 rounded text-sm transition-colors`}
+                  >
                     Publicar comentario
                   </button>
                 </div>
@@ -431,83 +694,32 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
 
               {/* Comments List */}
               <div className="space-y-3">
-                {/* Comment 1 */}
-                <div className={`${theme === 'dark' ? 'bg-[#12151a]/30' : 'bg-pink-50/60'} p-4 rounded-lg`}>
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      JD
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Juan Díaz</span>
-                        <span className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-xs`}>Hace 2 horas</span>
+                {comments.map((comment) => (
+                  <div key={comment.id} className={`${theme === 'dark' ? 'bg-[#12151a]/30' : 'bg-pink-50/60'} p-4 rounded-lg`}>
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 bg-gradient-to-br ${comment.colorClass} rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0`}>
+                        {comment.authorInitials}
                       </div>
-                      <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
-                        ¡Excelente progreso con el desafío! Sigue así, estás muy cerca de completarlo. La constancia es la clave del éxito.
-                      </p>
-                      <div className="flex gap-4 mt-2">
-                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
-                          👍 Útil (3)
-                        </button>
-                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
-                          Responder
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Comment 2 */}
-                <div className={`${theme === 'dark' ? 'bg-[#12151a]/30' : 'bg-pink-50/60'} p-4 rounded-lg`}>
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      MG
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>María García</span>
-                        <span className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-xs`}>Hace 5 horas</span>
-                      </div>
-                      <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
-                        ¿Cómo llevas la parte de la dieta? Yo estoy luchando con ese aspecto del desafío. ¡Ánimo!
-                      </p>
-                      <div className="flex gap-4 mt-2">
-                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
-                          👍 Útil (1)
-                        </button>
-                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
-                          Responder
-                        </button>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`font-medium truncate ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{comment.authorName}</span>
+                          <span className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-xs flex-shrink-0`}>{comment.timestamp}</span>
+                        </div>
+                        <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm break-words`}>
+                          {comment.text}
+                        </p>
+                        <div className="flex gap-4 mt-2">
+                          <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
+                            👍 Útil ({comment.likes})
+                          </button>
+                          <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
+                            Responder
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Comment 3 */}
-                <div className={`${theme === 'dark' ? 'bg-[#12151a]/30' : 'bg-pink-50/60'} p-4 rounded-lg`}>
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      CR
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Carlos Rodríguez</span>
-                        <span className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-xs`}>Ayer</span>
-                      </div>
-                      <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
-                        ¡Increíble motivación! Tu dedicación es inspiradora. ¿Podrías compartir algunos consejos para mantener la disciplina?
-                      </p>
-                      <div className="flex gap-4 mt-2">
-                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
-                          👍 Útil (5)
-                        </button>
-                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'} text-xs transition-colors`}>
-                          Responder
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
 
               {/* Load More Comments */}

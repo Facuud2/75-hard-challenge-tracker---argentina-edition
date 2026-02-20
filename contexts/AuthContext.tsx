@@ -4,6 +4,8 @@ interface UserData {
   name: string;
   email: string;
   avatarUrl?: string;
+  bio?: string;
+  location?: string;
 }
 
 interface AuthContextType {
@@ -12,6 +14,7 @@ interface AuthContextType {
   login: (email: string, password: string) => boolean;
   register: (userData: { name: string; email: string; password: string }) => void;
   logout: () => void;
+  updateProfile: (data: Partial<UserData>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -94,12 +97,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem(AUTH_STORAGE_KEY);
   };
 
+  const updateProfile = (data: Partial<UserData>) => {
+    if (currentUser) {
+      setCurrentUser({ ...currentUser, ...data });
+    }
+  };
+
   const value: AuthContextType = {
     isLoggedIn,
     currentUser,
     login,
     register,
-    logout
+    logout,
+    updateProfile
   };
 
   return (
