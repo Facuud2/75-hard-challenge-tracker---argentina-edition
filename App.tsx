@@ -575,9 +575,11 @@ const AppContent: React.FC = () => {
             <h1 className={`text-sm sm:text-lg font-oswald font-bold tracking-tight italic transition-colors duration-300 ${theme === 'dark' ? 'text-white' : 'text-gray-900'
               }`}>
               <span className="mr-1 sm:mr-2">75 DAYS</span>
-              <span className={`${theme === 'dark' ? 'text-pink-400' : 'text-pink-600'} font-oswald font-bold uppercase text-xs sm:text-sm`}>
-                {activePlanId ? activePlanId.toUpperCase() : 'HARD'}
-              </span>
+              {isLoggedIn && (
+                <span className={`${theme === 'dark' ? 'text-pink-400' : 'text-pink-600'} font-oswald font-bold uppercase text-xs sm:text-sm`}>
+                  {activePlanId ? activePlanId.toUpperCase() : 'HARD'}
+                </span>
+              )}
             </h1>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
