@@ -453,7 +453,7 @@ export default function Profile({ theme = 'dark', isModal = false, onClose }: Pr
                   <span>{location}</span>
                 </div>
                 <p className="text-gray-400 text-sm max-w-md mb-3 sm:mb-4 italic text-center sm:text-left">
-                  "{currentUser ? 'Miembro activo del 75 Hard Challenge' : USER_DATA.bio}"
+                  "{displayUser.bio}"
                 </p>
                 <div className="flex justify-center sm:justify-start">
                   <a href="#" className="text-xs text-blue-400 hover:text-white transition-colors">View more info</a>
