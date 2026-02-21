@@ -9,6 +9,7 @@ export const users = pgTable('users', {
     id: text('id').primaryKey().$defaultFn(() => uuidv4()),
     name: text('name').notNull(),
     email: text('email').notNull().unique(),
+    password: text('password').notNull(),
     avatarUrl: text('avatar_url'),
     currentPlanId: text('current_plan_id'), // We'll add FK later or keep it loose to avoid circular dependency
     createdAt: timestamp('created_at').defaultNow().notNull(),
