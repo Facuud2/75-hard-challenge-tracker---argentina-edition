@@ -2,17 +2,18 @@ import { Router } from 'express';
 import { db } from '../db';
 import { users, physicalStats } from '../db/schema';
 import { eq } from 'drizzle-orm';
+import bcrypt from 'bcrypt';
 
 const router = Router();
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, avatarUrl, weight, height, bodyFatPercentage } = req.body;
+        const { name, email, password, avatarUrl, weight, height, bodyFatPercentage } = req.body;
 
         // Basic validation
-        if (!name || !email || !weight || !height) {
-            return res.status(400).json({ error: 'Missing required fields: name, email, weight, height' });
+        if (!name || !email || !password || !weight || !height) {
+            return res.status(400).json({ error: 'Missing required fields: name, email, password, weight, height' });
         }
 
         // Check if user already exists
@@ -21,11 +22,15 @@ router.post('/register', async (req, res) => {
             return res.status(409).json({ error: 'User with this email already exists' });
         }
 
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         // Proceed with sequential inserts since neon-http does not support transactions
         // 1. Insert User
         const [newUser] = await db.insert(users).values({
             name,
             email,
+            password: hashedPassword,
             avatarUrl,
         }).returning();
 
