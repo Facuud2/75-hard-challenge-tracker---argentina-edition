@@ -18,11 +18,12 @@ const OPTIONAL_ACTIVITIES = [
 ];
 
 export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPlan }: OnboardingFlowProps) {
-    const { updateProfile } = useAuth();
+    const { updateProfile, finalizeRegistration } = useAuth();
     const [step, setStep] = useState(1);
     const [height, setHeight] = useState('');
     const [weight, setWeight] = useState('');
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
     const [selectedPlanId, setSelectedPlanId] = useState<string>('');
     const [isCustomizing, setIsCustomizing] = useState(false);
@@ -143,30 +144,36 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
         }
     };
 
-    const handleComplete = () => {
-        // Save onboarding data to profile
-        updateProfile({
-            height: parseFloat(height),
-            weight: parseFloat(weight),
-            onboardingCompleted: true,
-            // We could save selectedActivities to the profile as well if the UserData interface supported it, 
-            // but for now the main requirement is the boolean flag and required metrics.
-        });
-        onComplete();
-        if (selectedPlanId && onSelectPlan) {
-            const plan = CHALLENGE_PLANS.find(p => p.id === selectedPlanId);
-            if (plan) {
-                if (plan.id === 'custom') {
-                    // Inject custom configured tasks
-                    const customPlan = {
-                        ...plan,
-                        tasks: customTaskDefinitions.filter(task => customTasks.includes(task.id))
-                    };
-                    onSelectPlan(customPlan);
-                } else {
-                    onSelectPlan(plan);
+    const handleComplete = async () => {
+        setIsSubmitting(true);
+        setError('');
+
+        try {
+            // Send aggregated data to backend
+            await finalizeRegistration({
+                height: parseFloat(height),
+                weight: parseFloat(weight)
+            });
+
+            onComplete();
+
+            if (selectedPlanId && onSelectPlan) {
+                const plan = CHALLENGE_PLANS.find(p => p.id === selectedPlanId);
+                if (plan) {
+                    if (plan.id === 'custom') {
+                        const customPlan = {
+                            ...plan,
+                            tasks: customTaskDefinitions.filter(task => customTasks.includes(task.id))
+                        };
+                        onSelectPlan(customPlan);
+                    } else {
+                        onSelectPlan(plan);
+                    }
                 }
             }
+        } catch (err: any) {
+            setError(err.message || 'Error occurred during registration');
+            setIsSubmitting(false);
         }
     };
 
@@ -591,17 +598,23 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
                         </button>
                         <button
                             onClick={handleComplete}
-                            disabled={!selectedPlanId || (selectedPlanId === 'custom' && customTasks.length === 0)}
-                            className={`flex-[2] py-4 rounded-xl font-bold uppercase tracking-widest transition-transform shadow-xl ${(!selectedPlanId || (selectedPlanId === 'custom' && customTasks.length === 0))
+                            disabled={isSubmitting || !selectedPlanId || (selectedPlanId === 'custom' && customTasks.length === 0)}
+                            className={`flex-[2] py-4 rounded-xl font-bold uppercase tracking-widest transition-transform shadow-xl ${(!selectedPlanId || (selectedPlanId === 'custom' && customTasks.length === 0) || isSubmitting)
                                 ? theme === 'dark' ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                 : theme === 'dark'
                                     ? 'bg-gradient-to-r from-pink-600 to-pink-500 text-white hover:from-pink-500 hover:to-pink-400 shadow-pink-900/50 active:scale-95'
                                     : 'bg-gradient-to-r from-pink-500 to-pink-400 text-white hover:from-pink-600 hover:to-pink-500 shadow-pink-200 active:scale-95'
                                 }`}
                         >
-                            Comenzar Reto
+                            {isSubmitting ? 'Registrando...' : 'Comenzar Reto'}
                         </button>
                     </div>
+
+                    {error && (
+                        <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-center text-sm font-medium">
+                            {error}
+                        </div>
+                    )}
                 </div>
             )}
         </div>

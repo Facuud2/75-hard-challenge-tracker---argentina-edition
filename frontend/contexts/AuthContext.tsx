@@ -14,8 +14,10 @@ interface UserData {
 interface AuthContextType {
   isLoggedIn: boolean;
   currentUser: UserData | null;
+  pendingRegistrationData: any | null;
   login: (email: string, password: string) => boolean;
   register: (userData: { name: string; email: string; password: string }) => void;
+  finalizeRegistration: (onboardingData: { height: number; weight: number }) => Promise<void>;
   logout: () => void;
   updateProfile: (data: Partial<UserData>) => void;
 }
@@ -39,6 +41,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  const [pendingRegistrationData, setPendingRegistrationData] = useState<any | null>(null);
 
   // Cargar usuario desde localStorage al iniciar
   useEffect(() => {
@@ -85,20 +88,71 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const register = (userData: { name: string; email: string; password: string }) => {
-    // Simulación de registro exitoso
-    const newUser: UserData = {
+    // Guarda los datos temporalmente
+    setPendingRegistrationData(userData);
+
+    // Genera un estado "virtual" de login que fuerza el Onboarding Flow
+    const tempUser: UserData = {
       name: userData.name,
       email: userData.email,
       avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + userData.name,
-      onboardingCompleted: false // Require onboarding for new users
+      onboardingCompleted: false
     };
-    setCurrentUser(newUser);
+
+    setCurrentUser(tempUser);
     setIsLoggedIn(true);
+  };
+
+  const finalizeRegistration = async (onboardingData: { height: number; weight: number }) => {
+    if (!pendingRegistrationData) {
+      // Corrupt state, likely due to a page reload losing the temporary data
+      logout();
+      throw new Error('Se perdieron los datos temporales del registro. Por favor, vuelve a intentar.');
+    }
+
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: pendingRegistrationData.name,
+          email: pendingRegistrationData.email,
+          password: pendingRegistrationData.password,
+          weight: onboardingData.weight,
+          height: onboardingData.height
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to register');
+      }
+
+      const { user } = await response.json();
+
+      const establishedUser: UserData = {
+        name: user.name,
+        email: user.email,
+        avatarUrl: user.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`,
+        height: onboardingData.height,
+        weight: onboardingData.weight,
+        onboardingCompleted: true
+      };
+
+      setCurrentUser(establishedUser);
+      setPendingRegistrationData(null); // Clear temporary data
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(establishedUser));
+
+    } catch (error) {
+      console.error('Registration failed:', error);
+      throw error;
+    }
   };
 
   const logout = () => {
     setIsLoggedIn(false);
     setCurrentUser(null);
+    setPendingRegistrationData(null);
     localStorage.removeItem(AUTH_STORAGE_KEY);
   };
 
@@ -111,8 +165,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     isLoggedIn,
     currentUser,
+    pendingRegistrationData,
     login,
     register,
+    finalizeRegistration,
     logout,
     updateProfile
   };

@@ -6,6 +6,24 @@ import bcrypt from 'bcrypt';
 
 const router = Router();
 
+// POST /api/auth/check-email
+router.post('/check-email', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ error: 'Email is required' });
+        }
+
+        const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+        return res.status(200).json({ exists: existingUser.length > 0 });
+    } catch (error) {
+        console.error('Check email error:', error);
+        res.status(500).json({ error: 'Internal server error during email check' });
+    }
+});
+
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
     try {
