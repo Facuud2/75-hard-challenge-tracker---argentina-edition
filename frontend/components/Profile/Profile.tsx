@@ -392,9 +392,9 @@ export default function Profile({ theme = 'dark', isModal = false, onClose, onSe
   // Si no está logueado, mostrar la pantalla de autenticación
   if (!isLoggedIn) {
     return (
-      <div className={`min-h-screen ${isModal ? 'h-[90vh]' : ''} flex items-center justify-center p-4 ${theme === 'dark' ? 'bg-black text-white' : 'bg-white text-gray-900'
+      <div className={`w-full ${isModal ? 'h-[90vh]' : 'min-h-screen'} overflow-y-auto flex flex-col ${theme === 'dark' ? 'bg-black text-white' : 'bg-white text-gray-900'
         }`}>
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md m-auto p-4 py-8">
           {authView === 'login' ? (
             <Login
               theme={theme}
@@ -416,8 +416,10 @@ export default function Profile({ theme = 'dark', isModal = false, onClose, onSe
   // Show onboarding flow if the user is logged in but hasn't completed it
   if (isLoggedIn && currentUser && !currentUser.onboardingCompleted) {
     return (
-      <div className={`min-h-screen ${isModal ? 'h-[90vh]' : ''} flex items-center justify-center p-4 ${theme === 'dark' ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
-        <OnboardingFlow theme={theme} onComplete={() => { }} />
+      <div className={`w-full ${isModal ? 'h-[90vh]' : 'min-h-screen'} overflow-y-auto flex flex-col ${theme === 'dark' ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
+        <div className="m-auto p-4 py-8 w-full">
+          <OnboardingFlow theme={theme} onComplete={() => { }} />
+        </div>
       </div>
     );
   }

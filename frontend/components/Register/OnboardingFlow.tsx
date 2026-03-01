@@ -189,13 +189,13 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
         }`;
 
     return (
-        <div className={`w-full max-w-2xl mx-auto p-4 sm:p-8 rounded-2xl shadow-2xl backdrop-blur-xl border ${theme === 'dark'
+        <div className={`w-full max-w-2xl mx-auto p-4 sm:p-6 rounded-2xl shadow-2xl backdrop-blur-xl border ${theme === 'dark'
             ? 'bg-gradient-to-br from-gray-900/90 to-black/95 border-gray-800'
             : 'bg-gradient-to-br from-pink-50/95 to-white border-pink-100'
             }`}>
 
             {/* Progress Bar */}
-            <div className="mb-8">
+            <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
                     <span className={`text-sm font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                         Paso {step} de 3
@@ -214,20 +214,20 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
 
             {step === 1 ? (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                    <div className="text-center mb-10">
-                        <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-6 shadow-lg ${theme === 'dark' ? 'bg-pink-900/30 shadow-pink-900/20 text-pink-400' : 'bg-pink-100 shadow-pink-200/50 text-pink-600'
+                    <div className="text-center mb-6">
+                        <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4 shadow-lg ${theme === 'dark' ? 'bg-pink-900/30 shadow-pink-900/20 text-pink-400' : 'bg-pink-100 shadow-pink-200/50 text-pink-600'
                             }`}>
-                            <Target size={32} />
+                            <Target size={24} />
                         </div>
-                        <h2 className={`text-3xl sm:text-4xl font-black mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                        <h2 className={`text-2xl sm:text-3xl font-black mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                             Establece tu Base
                         </h2>
-                        <p className={`text-lg max-w-md mx-auto ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                        <p className={`text-base max-w-md mx-auto ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                             Para registrar tu progreso en el desafío 75 Hard, necesitamos tus métricas iniciales.
                         </p>
                     </div>
 
-                    <div className="space-y-6 max-w-md mx-auto">
+                    <div className="space-y-4 max-w-md mx-auto">
                         {error && (
                             <div className="flex items-center gap-2 p-4 text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl">
                                 <AlertCircle size={20} />
@@ -235,7 +235,7 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
                             </div>
                         )}
 
-                        <div className={`p-4 sm:p-6 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${theme === 'dark' ? 'bg-pink-900/10 border-pink-600/20' : 'bg-pink-50/60 border-pink-200'}`}>
+                        <div className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${theme === 'dark' ? 'bg-pink-900/10 border-pink-600/20' : 'bg-pink-50/60 border-pink-200'}`}>
                             <div className="flex items-center gap-3">
                                 <Activity className={`w-6 h-6 ${theme === 'dark' ? 'text-pink-500' : 'text-pink-600'}`} />
                                 <div>
@@ -259,7 +259,7 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
                             </select>
                         </div>
 
-                        <div className={`p-4 sm:p-6 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${theme === 'dark' ? 'bg-pink-900/10 border-pink-600/20' : 'bg-pink-50/60 border-pink-200'}`}>
+                        <div className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${theme === 'dark' ? 'bg-pink-900/10 border-pink-600/20' : 'bg-pink-50/60 border-pink-200'}`}>
                             <div className="flex items-center gap-3">
                                 <Icon name="dumbbell" className={`w-6 h-6 ${theme === 'dark' ? 'text-pink-500' : 'text-pink-600'}`} />
                                 <div>
@@ -314,7 +314,7 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
 
                         <button
                             onClick={handleNextStep}
-                            className={`w-full py-4 mt-8 rounded-xl font-bold uppercase tracking-widest transition-transform active:scale-95 shadow-xl ${theme === 'dark'
+                            className={`w-full py-3 mt-6 rounded-xl font-bold uppercase tracking-widest text-sm transition-transform active:scale-95 shadow-xl ${theme === 'dark'
                                 ? 'bg-gradient-to-r from-pink-600 to-pink-500 text-white hover:from-pink-500 hover:to-pink-400 shadow-pink-900/50'
                                 : 'bg-gradient-to-r from-pink-500 to-pink-400 text-white hover:from-pink-600 hover:to-pink-500 shadow-pink-200'
                                 }`}
@@ -325,23 +325,23 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
                 </div>
             ) : step === 2 ? (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                    <div className="text-center mb-8">
-                        <h2 className={`text-3xl font-black mb-3 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                    <div className="text-center mb-6">
+                        <h2 className={`text-2xl font-black mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                             Actividades Recientes
                         </h2>
-                        <p className={`text-base max-w-md mx-auto ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                        <p className={`text-sm max-w-md mx-auto ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                             ¿Quieres unirte a alguna de estas actividades extra? (Opcional)
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto mb-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto mb-6">
                         {OPTIONAL_ACTIVITIES.map((activity) => {
                             const isSelected = selectedActivities.includes(activity.id);
                             return (
                                 <button
                                     key={activity.id}
                                     onClick={() => toggleActivity(activity.id)}
-                                    className={`flex flex-col items-center text-center p-6 rounded-2xl border-2 transition-all duration-300 ${isSelected
+                                    className={`flex flex-col items-center text-center p-4 rounded-2xl border-2 transition-all duration-300 ${isSelected
                                         ? theme === 'dark'
                                             ? 'bg-pink-900/20 border-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.1)] scale-[1.02]'
                                             : 'bg-pink-50 border-pink-500 shadow-md scale-[1.02]'
@@ -350,23 +350,23 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
                                             : 'bg-white border-pink-100 hover:border-pink-300 shadow-sm'
                                         }`}
                                 >
-                                    <div className={`mb-4 p-3 rounded-full ${isSelected
+                                    <div className={`mb-2 p-2 rounded-full ${isSelected
                                         ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/40'
                                         : theme === 'dark' ? 'bg-gray-700 text-gray-400' : 'bg-pink-50 text-pink-400'
                                         }`}>
                                         {activity.icon}
                                     </div>
-                                    <h3 className={`font-bold text-lg mb-1 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{activity.title}</h3>
+                                    <h3 className={`font-bold text-base mb-1 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{activity.title}</h3>
                                     <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{activity.description}</p>
                                 </button>
                             );
                         })}
                     </div>
 
-                    <div className="flex gap-4 max-w-md mx-auto">
+                    <div className="flex gap-3 max-w-md mx-auto">
                         <button
                             onClick={() => setStep(1)}
-                            className={`flex-1 py-4 rounded-xl font-bold uppercase tracking-widest transition-colors ${theme === 'dark'
+                            className={`flex-1 py-3 text-sm rounded-xl font-bold uppercase tracking-widest transition-colors ${theme === 'dark'
                                 ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'
                                 }`}
@@ -375,7 +375,7 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
                         </button>
                         <button
                             onClick={() => setStep(3)}
-                            className={`flex-[2] py-4 rounded-xl font-bold uppercase tracking-widest transition-transform active:scale-95 shadow-xl ${theme === 'dark'
+                            className={`flex-[2] py-3 text-sm rounded-xl font-bold uppercase tracking-widest transition-transform active:scale-95 shadow-xl ${theme === 'dark'
                                 ? 'bg-gradient-to-r from-pink-600 to-pink-500 text-white hover:from-pink-500 hover:to-pink-400 shadow-pink-900/50'
                                 : 'bg-gradient-to-r from-pink-500 to-pink-400 text-white hover:from-pink-600 hover:to-pink-500 shadow-pink-200'
                                 }`}
@@ -386,16 +386,16 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
                 </div>
             ) : (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                    <div className="text-center mb-8">
-                        <h2 className={`text-3xl font-black mb-3 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                    <div className="text-center mb-6">
+                        <h2 className={`text-2xl font-black mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                             Elige tu Desafío
                         </h2>
-                        <p className={`text-base max-w-md mx-auto ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                        <p className={`text-sm max-w-md mx-auto ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                             Activa el plan con el que deseas comenzar tu viaje.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto mb-10 h-64 overflow-y-auto scrollbar-thin pr-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto mb-6 h-56 overflow-y-auto scrollbar-thin pr-2">
                         {CHALLENGE_PLANS.map((plan) => {
                             const isSelected = selectedPlanId === plan.id;
                             return (
@@ -409,7 +409,7 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
                                             setIsCustomizing(false);
                                         }
                                     }}
-                                    className={`flex flex-col text-left p-4 rounded-2xl border-2 transition-all duration-300 ${isSelected
+                                    className={`flex flex-col text-left p-3 rounded-xl border-2 transition-all duration-300 ${isSelected
                                         ? theme === 'dark'
                                             ? 'bg-pink-900/40 border-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.15)] scale-[1.02]'
                                             : 'bg-pink-50 border-pink-500 shadow-md scale-[1.02]'
@@ -420,9 +420,9 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
                                 >
                                     <div className="flex items-center gap-3 mb-2">
                                         <div className={`p-2 rounded-xl ${theme === 'dark' ? 'bg-gray-800' : 'bg-pink-50'}`}>
-                                            <Icon name="target" className={`w-5 h-5 flex-shrink-0 ${theme === 'dark' ? 'text-pink-400' : 'text-pink-500'}`} />
+                                            <Icon name="target" className={`w-4 h-4 flex-shrink-0 ${theme === 'dark' ? 'text-pink-400' : 'text-pink-500'}`} />
                                         </div>
-                                        <h3 className={`font-bold text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{plan.name}</h3>
+                                        <h3 className={`font-bold text-base ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{plan.name}</h3>
                                     </div>
                                     <p className={`text-xs flex-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{plan.description}</p>
                                 </button>
@@ -431,8 +431,8 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
                     </div>
 
                     {selectedPlanId === 'custom' && isCustomizing && (
-                        <div className="space-y-4 max-w-2xl mx-auto mb-8">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto scrollbar-thin pr-2">
+                        <div className="space-y-4 max-w-2xl mx-auto mb-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto scrollbar-thin pr-2">
                                 {customTaskDefinitions.map((task) => (
                                     <div key={task.id} className="relative">
                                         <div
@@ -575,8 +575,8 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
                                         : 'border-gray-300 hover:border-gray-400 bg-gray-50/30 hover:bg-gray-50/50'
                                         }`}
                                 >
-                                    <div className="flex flex-col items-center justify-center h-full min-h-[80px]">
-                                        <Icon name="plus" className={`w-6 h-6 mb-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
+                                    <div className="flex flex-col items-center justify-center h-full min-h-[60px]">
+                                        <Icon name="plus" className={`w-5 h-5 mb-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
                                         <p className={`text-xs font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                                             Agregar Tarea
                                         </p>
@@ -586,10 +586,10 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
                         </div>
                     )}
 
-                    <div className="flex gap-4 max-w-md mx-auto">
+                    <div className="flex gap-3 max-w-md mx-auto">
                         <button
                             onClick={() => setStep(2)}
-                            className={`flex-[1] py-4 rounded-xl font-bold uppercase tracking-widest transition-colors ${theme === 'dark'
+                            className={`flex-[1] py-3 text-sm rounded-xl font-bold uppercase tracking-widest transition-colors ${theme === 'dark'
                                 ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'
                                 }`}
@@ -599,7 +599,7 @@ export default function OnboardingFlow({ theme = 'dark', onComplete, onSelectPla
                         <button
                             onClick={handleComplete}
                             disabled={isSubmitting || !selectedPlanId || (selectedPlanId === 'custom' && customTasks.length === 0)}
-                            className={`flex-[2] py-4 rounded-xl font-bold uppercase tracking-widest transition-transform shadow-xl ${(!selectedPlanId || (selectedPlanId === 'custom' && customTasks.length === 0) || isSubmitting)
+                            className={`flex-[2] py-3 text-sm rounded-xl font-bold uppercase tracking-widest transition-transform shadow-xl ${(!selectedPlanId || (selectedPlanId === 'custom' && customTasks.length === 0) || isSubmitting)
                                 ? theme === 'dark' ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                 : theme === 'dark'
                                     ? 'bg-gradient-to-r from-pink-600 to-pink-500 text-white hover:from-pink-500 hover:to-pink-400 shadow-pink-900/50 active:scale-95'
