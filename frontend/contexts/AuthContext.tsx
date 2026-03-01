@@ -15,7 +15,7 @@ interface AuthContextType {
   isLoggedIn: boolean;
   currentUser: UserData | null;
   pendingRegistrationData: any | null;
-  login: (email: string, password: string) => boolean;
+  login: (email: string, password: string) => Promise<boolean>;
   register: (userData: { name: string; email: string; password: string }) => void;
   finalizeRegistration: (onboardingData: { height: number; weight: number }) => Promise<void>;
   logout: () => void;
@@ -67,22 +67,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [currentUser]);
 
-  const login = (email: string, password: string): boolean => {
-    // Validación específica para credenciales de prueba
-    if (email === 'correo@correo.com' && password === '123') {
-      const userData: UserData = {
-        name: 'Usuario Demo',
-        email: email,
-        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
-        onboardingCompleted: true // Demo user skips onboarding
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const { user } = await response.json();
+
+      const establishedUser: UserData = {
+        name: user.name,
+        email: user.email,
+        avatarUrl: user.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`,
+        onboardingCompleted: user.onboardingCompleted
       };
-      // Delay state update slightly to allow UI to show success message if needed, 
-      // but here we just return true.
-      setCurrentUser(userData);
+
+      setCurrentUser(establishedUser);
       setIsLoggedIn(true);
       return true;
-    } else {
-      // Simulación de login para otras credenciales
+    } catch (error) {
+      console.error('Login failed:', error);
       return false;
     }
   };
