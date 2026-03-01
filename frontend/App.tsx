@@ -41,65 +41,15 @@ const AppContent: React.FC = () => {
     return 'hard';
   });
   const [state, setState] = useState<ChallengeState>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     const todayStr = getArgentinaDateString();
 
-    // Default initial state
-    const defaultState: ChallengeState = {
+    return {
       currentDay: 1,
       startDate: todayStr,
       history: [{ dateString: todayStr, tasks: INITIAL_TASKS }],
       lastVisitedDate: todayStr
     };
-
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as ChallengeState;
-
-        // If it's the same day, return state as is
-        if (parsed.lastVisitedDate === todayStr) {
-          return parsed;
-        }
-
-        // --- NEW DAY LOGIC (Reset/Continue) ---
-        const daysDiff = getDaysDifference(parsed.lastVisitedDate, todayStr);
-        let newCurrentDay = 1;
-        let isStreakBroken = false;
-
-        const lastDayData = parsed.history.find(h => h.dateString === parsed.lastVisitedDate);
-        const wasCompleted = lastDayData?.tasks.every(t => t.completed) ?? false;
-
-        if (daysDiff === 1) {
-          if (wasCompleted) {
-            newCurrentDay = parsed.currentDay + 1;
-          } else {
-            isStreakBroken = true;
-          }
-        } else {
-          isStreakBroken = true;
-        }
-
-        return {
-          ...parsed,
-          currentDay: newCurrentDay,
-          lastVisitedDate: todayStr,
-          startDate: isStreakBroken ? todayStr : parsed.startDate,
-          history: [
-            ...parsed.history,
-            { dateString: todayStr, tasks: INITIAL_TASKS.map(t => ({ ...t, completed: false })) }
-          ]
-        };
-      } catch (e) {
-        console.error("Error parsing storage", e);
-        return defaultState;
-      }
-    }
-    return defaultState;
   });
-
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
 
   // Lock body scroll when profile modal is open
   useEffect(() => {
@@ -517,15 +467,6 @@ const AppContent: React.FC = () => {
         history: [{ dateString: todayStr, tasks: newTasks }],
         lastVisitedDate: todayStr
       });
-
-      // Save to localStorage
-      const newState = {
-        currentDay: 1,
-        startDate: todayStr,
-        history: [{ dateString: todayStr, tasks: newTasks }],
-        lastVisitedDate: todayStr
-      };
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newState));
 
       // Clear shown notifications when changing plan
       achievements.clearShownNotifications();
