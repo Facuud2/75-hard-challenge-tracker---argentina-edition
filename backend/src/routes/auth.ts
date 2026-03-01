@@ -68,4 +68,45 @@ router.post('/register', async (req, res) => {
     }
 });
 
+// POST /api/auth/login
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password are required' });
+        }
+
+        const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+        if (existingUser.length === 0) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        const user = existingUser[0];
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        // Check if user has physical stats (onboarding completed)
+        const userStats = await db.select().from(physicalStats).where(eq(physicalStats.userId, user.id)).limit(1);
+        const onboardingCompleted = userStats.length > 0;
+
+        // Return user data without password
+        const { password: _, ...userData } = user;
+
+        return res.status(200).json({
+            user: {
+                ...userData,
+                onboardingCompleted
+            }
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ error: 'Internal server error during login' });
+    }
+});
+
 export default router;

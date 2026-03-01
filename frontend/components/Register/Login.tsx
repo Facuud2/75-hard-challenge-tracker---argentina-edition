@@ -3,7 +3,7 @@ import { User, Lock, Mail, Eye, EyeOff } from 'lucide-react';
 
 interface LoginProps {
   theme?: 'dark' | 'light';
-  onLogin: (email: string, password: string) => boolean;
+  onLogin: (email: string, password: string) => Promise<boolean>;
   onSwitchToRegister: () => void;
 }
 
@@ -19,9 +19,8 @@ export default function Login({ theme = 'dark', onLogin, onSwitchToRegister }: L
     setIsLoading(true);
     setFeedback(null);
 
-    // Simulación de delay
-    setTimeout(() => {
-      const success = onLogin(email, password);
+    try {
+      const success = await onLogin(email, password);
       setIsLoading(false);
 
       if (success) {
@@ -30,7 +29,10 @@ export default function Login({ theme = 'dark', onLogin, onSwitchToRegister }: L
       } else {
         setFeedback({ type: 'error', message: 'Correo o contraseña incorrectos.' });
       }
-    }, 1000);
+    } catch (error) {
+      setIsLoading(false);
+      setFeedback({ type: 'error', message: 'Ocurrió un error al intentar iniciar sesión.' });
+    }
   };
 
   const inputClass = `w-full px-3 py-2 sm:px-4 sm:py-2.5 text-sm rounded-lg border transition-colors duration-300 ${theme === 'dark'
